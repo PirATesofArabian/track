@@ -1,0 +1,7 @@
+node_modules
+dist
+# personal data, never commit
+import-*.json
+imports/
+tracker-backup-*.json
+.DS_Store

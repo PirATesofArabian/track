@@ -1,0 +1,16 @@
+# sudo cp server/tracker.service /etc/systemd/system/ && sudo systemctl enable --now tracker
+# Edit User and the two paths to match where you cloned the project.
+[Unit]
+Description=Gym food tracker
+After=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/gym-food-tracker
+ExecStart=/usr/bin/python3 server/server.py serve
+Restart=on-failure
+# Only listen on the Tailscale / LAN address you use; 127.0.0.1 if a proxy sits in front.
+Environment=HOST=0.0.0.0 PORT=8787
+
+[Install]
+WantedBy=multi-user.target

@@ -4,6 +4,7 @@ import { db, type GoalRec } from '../lib/db'
 import { useExerciseIndex, useProfile } from '../lib/hooks'
 import { buildExerciseIndex, sessionsByExercise } from '../lib/perf'
 import { weightTrend } from '../lib/body'
+import { deficitNow } from '../lib/science'
 import { GoalError, fmtRest, goalProgress, milestones, restAnalysis, validateGoal, weeklyCheckin } from '../lib/goals'
 import { Bar, Btn, Card, Chips, Empty, Field, NumInput, Sheet, inputCls } from '../lib/ui'
 import { deleteWithUndo } from '../lib/undo'
@@ -14,13 +15,13 @@ const REST_TEXT = { compound_short: 'Your compound rests are short. Under about 
 export function GoalsView() {
   const idx = useExerciseIndex(), profile = useProfile()
   const today = todayStr()
-  const data = useLiveQuery(async () => ({ workouts: await db.workouts.toArray(), weights: await db.bodyWeight.toArray(), goals: await db.goals.toArray(), routines: await db.routines.toArray() }), [])
+  const data = useLiveQuery(async () => ({ workouts: await db.workouts.toArray(), weights: await db.bodyWeight.toArray(), goals: await db.goals.toArray(), routines: await db.routines.toArray(), logs: await db.foodLog.toArray(), measurements: await db.measurements.toArray() }), [])
   const [sheet, setSheet] = useState<GoalRec | 'new' | null>(null)
   const [restDays, setRestDays] = useState(90)
   const map = useMemo(() => (data ? sessionsByExercise(data.workouts, idx) : new Map()), [data, idx])
   if (!data) return <Empty>Loading…</Empty>
   const perWeek = data.routines.reduce((a, r) => a + r.days.reduce((b, d) => b + d.weekdays.length, 0), 0) || profile.trainingDays || null
-  const check = weeklyCheckin({ workouts: data.workouts, idx, target: perWeek, experience: profile.experience, today })
+  const check = weeklyCheckin({ workouts: data.workouts, idx, target: perWeek, experience: profile.experience, today, deficit: deficitNow({ profile, weights: data.weights, measurements: data.measurements, logs: data.logs, today }) })
   const ms = milestones(data.workouts, data.weights, idx, today, perWeek)
   const rest = restAnalysis(data.workouts, idx, shiftDate(today, -restDays), shiftDate(today, 1))
   const active = data.goals.filter((g) => !g.achievedAt), reached = data.goals.filter((g) => g.achievedAt)

@@ -324,7 +324,7 @@ export function simulateChanges(slots: Slot[], days: PlanDays, changes: SlotChan
 }
 
 // ───────── decision (their `hd`, `sd`, `ld`, `ud`, `dd`, `fd`) ─────────
-export type Person = { goal: Goal; experience: string; weightKg: number | null; bmrKcal: number | null; targetKg: number | null; ownProtein: boolean }
+export type Person = { goal: Goal; experience: string; weightKg: number | null; bmrKcal: number | null; targetKg: number | null; ownProtein: boolean; age: number | null; heightCm: number | null }
 export type Temporary = { id: string; cause: 'event' | 'pain' | 'deload'; start: string; until: string; muscles: string[]; calories: boolean; label: string; done?: boolean; undo: { patches: Patch[]; targets: { was: { kcal: number; p: number }; setTo: number } | null } }
 export type DecisionInput = {
   nextWeekStart: string; weeks: WeekAgg[]; model: Model; person: Person
@@ -363,6 +363,15 @@ function decideCalories(i: DecisionInput, ev: ReturnType<typeof nextEvent>): { c
     const name = EVENT_NAME[ev.kind]
     if (maint !== null && cur <= maint - 50) return { change: { id: 'calories', kind: 'calories', from: cur, to: maint, cause: 'event', until: afterEvent(ev, i.nextWeekStart), title: `Calories ${nf(cur)} to ${nf(maint)}`, reason: `${name} this week: eat at maintenance, no deficit. The target goes back afterwards.` }, hold: null }
     return hold(`Calories stay at ${nf(cur)} through ${name.toLowerCase()}.`)
+  }
+  // Safety limits: no deficit for anyone under 18, and no cut toward a target under a BMI of 18.5. The plan holds maintenance and says why.
+  const cutting = paceBand(person).dir === 'lose'
+  const underage = person.age !== null && person.age < 18
+  const lowTarget = person.targetKg !== null && !!person.heightCm && person.targetKg / (person.heightCm / 100) ** 2 < 18.5
+  if (cutting && (underage || lowTarget)) {
+    const why = underage ? 'nobody under 18 is given a deficit' : 'a target under a BMI of 18.5 is never planned for'
+    if (maint !== null && cur <= maint - 50) return { change: { id: 'calories', kind: 'calories', from: cur, to: maint, cause: 'floor', until: null, title: `Calories ${nf(cur)} to ${nf(maint)}`, reason: `Your weight is held at maintenance: ${why}.` }, hold: null }
+    return hold(`Calories stay at ${nf(cur)}: ${why}, so the plan holds your weight at maintenance.`)
   }
   if (!last || last.foodDays < 5 || last.weighIns < 4) return hold(`Calories stay at ${nf(cur)}. A change needs 5 logged food days and 4 weigh-ins in the week; this week had ${last?.foodDays ?? 0} and ${last?.weighIns ?? 0}.`)
   const rate = pace(weeks)

@@ -3,9 +3,9 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type FoodEntry } from '../lib/db'
 import { useSettings } from '../lib/hooks'
 import { customToItem, loadFoods, unitLabel, formatAmount, type FoodItem } from '../data/foodDb'
-import { BUDGET_HELP, BUDGET_LABEL, MEAL_NOW, SETTING_HELP, SETTING_LABEL, closeGap, eatNext, totalOf, withPairs, generatePlan, groceryList, groceryText, habits, hydrate, loadPrefs, loggedPlan, loggedTotals, menuVerdict, MIN_LOGGED_DAYS, savePrefs, sumN, type Budget, type Diet, type LoggedPlan, type Meal, type Portion, type Setting, type StoredPlan } from '../lib/mealplan'
+import { BUDGET_HELP, BUDGET_LABEL, MEAL_NOW, SETTING_HELP, SETTING_LABEL, MAIN_DISH, closeGap, daySplit, eatNext, eggRoom, MEAL_TIME, nextMeal, planDay, smartSearch, repeatBlocker, totalOf, withPairs, generatePlan, groceryList, groceryText, habits, hydrate, loadPrefs, loggedPlan, loggedTotals, menuVerdict, MIN_LOGGED_DAYS, savePrefs, sumN, type Budget, type Diet, type LoggedPlan, type Meal, type Portion, type Setting, type StoredPlan } from '../lib/mealplan'
 import { mondayOfDate } from '../lib/adaptive'
-import { Btn, Card, Chips, Empty } from '../lib/ui'
+import { Btn, Card, Chips, Empty, inputCls } from '../lib/ui'
 import { offerUndo } from '../lib/undo'
 import { prettyDate, round0, shiftDate, todayStr } from '../lib/util'
 
@@ -43,7 +43,13 @@ export function EatNext({ date }: { date: string }) {
   const meal = MEAL_NOW(new Date().getHours())
   const rem = { kcal: s.kcal - eaten.kcal, proteinG: s.p - eaten.p }
   const eatenNow = new Set(mine.map((e) => e.foodId).filter((x): x is string => !!x))
-  const sug = eatNext({ remaining: rem, meal, foods: map, habits: habits(logs, today), setting: prefs.setting, budget: prefs.budget, diet: loadDiet(), eatenNow })
+  const hab = habits(logs, today)
+  const fatLeft = s.f - mine.reduce((a, e) => a + e.f, 0)
+  const plan = nextMeal({ remaining: { kcal: rem.kcal, p: rem.proteinG, c: s.c - mine.reduce((a, e) => a + e.c, 0), f: s.f - mine.reduce((a, e) => a + e.f, 0) }, meal, foods: map, habits: hab, logs, today, diet: loadDiet(), dayKcal: s.kcal })
+  if (plan) return <NextMealCard plan={plan} rem={rem} today={today} />
+  const allowed = withoutRepeats(map, mine, logs, today)
+  const sug = eatNext({ remaining: rem, meal, foods: allowed, habits: hab, setting: prefs.setting, budget: prefs.budget, diet: loadDiet(), eatenNow, eggsLeft: eggRoom(mine), fatLeft })
+  if (!sug.length && fatLeft < 1 && rem.kcal >= 100) return <Card><p className="text-sm">Fat is already at your goal, so nothing with fat is suggested. You have {round0(rem.kcal)} kcal and {round0(Math.max(0, rem.proteinG))} g protein left.</p></Card>
   if (!sug.length) return null
   const WHY = { protein: 'High protein for what is left', usual: 'You eat this', fits: 'Fits your calories', similar: 'Similar to' }
   return (
@@ -55,6 +61,43 @@ export function EatNext({ date }: { date: string }) {
           <Btn variant="ghost" className="!h-8 text-xs shrink-0" onClick={() => logPortions(withPairs([p]), today, meal, `Logged ${p.food.name}`)}>Add</Btn>
         </div>
       ))}
+    </Card>
+  )
+}
+
+/** Foods left after dropping ones you already had today, egg-type limits, and full dishes for a meal that is already logged. */
+function withoutRepeats(map: Map<string, FoodItem>, mine: FoodEntry[], logs: FoodEntry[], today: string) {
+  const blocked = repeatBlocker({ eatenToday: mine, logs, today })
+  const mealLogged = mine.some((e) => e.meal === MEAL_LABEL[MEAL_NOW(new Date().getHours())])
+  // A meal that is already logged is not given another full dish (chicken, dosa, dal, rice dishes...), only small additions.
+  return new Map([...map].filter(([, f]) => !blocked(f) && !(mealLogged && MAIN_DISH.has(f.category ?? ''))))
+}
+const KIND_NOTE = { usual: 'as usual', more: 'more than usual', less: 'less than usual', added: 'add' } as const
+/** A target for the next meal and a version of your usual meal that hits it. */
+function NextMealCard({ plan, rem, today }: { plan: NonNullable<ReturnType<typeof nextMeal>>; rem: { kcal: number; proteinG: number }; today: string }) {
+  const t = plan.total, tg = plan.target
+  const later = plan.later.map((m) => MEAL_LABEL[m].toLowerCase())
+  return (
+    <Card className="space-y-2">
+      <div className="flex items-baseline justify-between"><h3 className="font-semibold">{plan.topUp ? `Top up ${MEAL_LABEL[plan.meal].toLowerCase()}` : `Next: ${MEAL_LABEL[plan.meal].toLowerCase()}`}</h3><span className="text-xs text-zinc-500 tabular-nums">{round0(rem.kcal)} kcal · {round0(Math.max(0, rem.proteinG))} g protein left today</span></div>
+      <p className="text-sm">{plan.topUp ? `${MEAL_LABEL[plan.meal]} is already logged. To use the rest of today, add about ` : 'Aim for about '}<b>{round0(tg.kcal)} kcal</b> and <b>{round0(tg.p)} g protein</b>.</p>
+      <p className="text-xs text-zinc-500">{plan.topUp ? 'Small additions only: your usual foods and eggs, paneer or yogurt. No main dish is added to a meal you already logged.' : plan.pattern ? `You usually have about ${round0(plan.usual)} kcal at ${MEAL_LABEL[plan.meal].toLowerCase()}.` : 'Not enough history for this meal yet, so this uses a standard share of the day.'}{!plan.topUp && later.length ? ` That leaves ${round0(rem.kcal - tg.kcal)} kcal for ${later.join(' and ')}.` : ''}</p>
+      {plan.items.map((i) => (
+        <div key={i.p.food.id} className="flex items-center justify-between gap-3 border-t border-zinc-800 pt-2 text-sm">
+          <div className="min-w-0">
+            <p className="truncate">{i.p.food.name}</p>
+            <p className="text-xs text-zinc-500">
+              {formatAmount(i.p.amount)} {unitLabel(i.p.food, i.p.unit, i.p.amount)} · {round0(i.p.n.kcal)} kcal · {round0(i.p.n.p)} g protein ·{' '}
+              <span className={i.kind === 'more' || i.kind === 'added' ? 'text-lime-400' : i.kind === 'less' ? 'text-amber-300' : ''}>
+                {i.kind === 'added' ? 'add' : plan.from ? (i.kind === 'more' || i.kind === 'less' ? `${KIND_NOTE[i.kind]} (you had ${formatAmount(i.was!.amount)})` : KIND_NOTE[i.kind]) : 'suggested'}
+              </span>
+            </p>
+          </div>
+        </div>
+      ))}
+      <p className="text-xs text-zinc-500">Together {round0(t.kcal)} kcal · P{round0(t.p)} C{round0(t.c)} F{round0(t.f)}.{plan.skipped.length ? ` Left out because you had it today: ${plan.skipped.join(', ')}.` : ''}</p>
+      <Btn className="w-full h-9" onClick={() => logPortions(plan.items.map((i) => i.p), today, plan.meal, `Logged ${MEAL_LABEL[plan.meal].toLowerCase()}`)}>Add all to {MEAL_LABEL[plan.meal]}</Btn>
+      <p className="text-[11px] text-zinc-600">Built from what you logged for this meal in the last 4 weeks, with portions changed and foods you already log added to reach the aim. Eggs stop at 3 whole and 6 whites a day, and oats-type foods are not repeated. My own scoring, not a published rule.</p>
     </Card>
   )
 }
@@ -74,7 +117,7 @@ export function LeftToday({ date }: { date: string }) {
     { k: 'Carbs', v: left.c, u: 'g', tol: 15 }, { k: 'Fat', v: left.f, u: 'g', tol: 5 },
   ]
   const short = rows.filter((r) => r.v > r.tol), over = rows.filter((r) => r.v < -r.tol)
-  const plan = date === today && map.size && (left.p > 5 || left.c > 15 || left.f > 5) ? closeGap({ left, foods: map, habits: habits(logs, today), diet: loadDiet() }) : null
+  const plan = date === today && map.size && (left.p > 5 || left.c > 15 || left.f > 5) ? closeGap({ left, foods: withoutRepeats(map, mine, logs, today), habits: habits(logs, today), diet: loadDiet(), eggsLeft: eggRoom(mine) }) : null
   const meal = MEAL_NOW(new Date().getHours())
   const sum = plan ? sumN(plan.picks.map((p) => ({ n: totalOf(p) }))) : null
   return (
@@ -101,7 +144,7 @@ export function LeftToday({ date }: { date: string }) {
           ))}
           {sum && <p className="text-xs text-zinc-500">All together {round0(sum.kcal)} kcal · P{round0(sum.p)} C{round0(sum.c)} F{round0(sum.f)}. Then the day lands at {round0(t.kcal + sum.kcal)} kcal, protein {round0(t.p + sum.p)} g, carbs {round0(t.c + sum.c)} g, fat {round0(t.f + sum.f)} g.</p>}
           <Btn className="w-full h-9" onClick={() => logPortions(withPairs(plan.picks), today, meal, 'Logged gap foods')}>Add all to {MEAL_LABEL[meal]}</Btn>
-          <p className="text-[11px] text-zinc-600">Picked from foods you log, then similar ones. A best fit by my own scoring, not a rule from a paper.</p>
+          <p className="text-[11px] text-zinc-600">Picked from foods you log. A best fit by my own scoring, not a rule from a paper.</p>
         </div>
       )}
       {over.length > 0 && short.length === 0 && <p className="text-xs text-zinc-400">Over on {over.map((r) => r.k.toLowerCase()).join(', ')}. Nothing to add. If the weight trend is where you want it, that is fine.</p>}
@@ -206,12 +249,12 @@ function GeneratedView() {
 
 const SOURCE_KEY = 'overload.mealSource'
 export function MealPlanView() {
-  const [source, setSource] = useState<'new' | 'logged'>(() => (localStorage.getItem(SOURCE_KEY) === 'logged' ? 'logged' : 'new'))
-  const pick = (v: 'new' | 'logged') => { setSource(v); localStorage.setItem(SOURCE_KEY, v) }
+  const [source, setSource] = useState<'new' | 'logged' | 'day'>(() => { const v = localStorage.getItem(SOURCE_KEY); return v === 'logged' || v === 'day' ? v : 'new' })
+  const pick = (v: 'new' | 'logged' | 'day') => { setSource(v); localStorage.setItem(SOURCE_KEY, v) }
   return (
     <div className="space-y-4">
-      <Chips value={source} onChange={pick} options={[{ v: 'new', label: 'New ideas' }, { v: 'logged', label: 'From what I eat' }]} />
-      {source === 'new' ? <GeneratedView /> : <LoggedView />}
+      <Chips value={source} onChange={pick} options={[{ v: 'day', label: 'Plan my day' }, { v: 'new', label: 'New ideas' }, { v: 'logged', label: 'From what I eat' }]} />
+      {source === 'day' ? <DayPlanView /> : source === 'new' ? <GeneratedView /> : <LoggedView />}
     </div>
   )
 }
@@ -260,6 +303,71 @@ function LoggedView() {
         ))}
         <p className="py-3 text-sm font-medium tabular-nums">Day total: {round0(t.kcal).toLocaleString('en-IN')} kcal · {round0(t.p)} g protein<span className="block text-xs font-normal text-zinc-500">{Math.abs(off) < 50 ? 'On your calorie target.' : `${Math.abs(off)} kcal ${off > 0 ? 'over' : 'under'} your ${s.kcal.toLocaleString('en-IN')} target.`}</span></p>
       </Card>
+    </div>
+  )
+}
+
+const HAVE_KEY = 'overload.dayFoods'
+const MEAL_LIST: Meal[] = ['breakfast', 'lunch', 'snacks', 'dinner']
+/** You say which foods you have today; this spreads them over the day's meals with amounts to reach what is left of your goals. */
+function DayPlanView() {
+  const s = useSettings()
+  const { map, list } = useFoodMap()
+  const logs = useLiveQuery(() => db.foodLog.toArray(), []) ?? []
+  const today = todayStr()
+  const [have, setHave] = useState<string[]>(() => { try { const v = JSON.parse(localStorage.getItem(HAVE_KEY) ?? '{}'); return v.date === today ? v.ids : [] } catch { return [] } })
+  const [q, setQ] = useState('')
+  const mine = logs.filter((e) => e.date === today)
+  const doneMeals = new Set(mine.map((e) => e.meal.toLowerCase() as Meal))
+  const [meals, setMeals] = useState<Meal[] | null>(null)
+  const use = meals ?? MEAL_LIST.filter((m) => !doneMeals.has(m))
+  const hab = useMemo(() => habits(logs, today), [logs, today])
+  const setIds = (ids: string[]) => { setHave(ids); localStorage.setItem(HAVE_KEY, JSON.stringify({ date: today, ids })) }
+  const toggle = (id: string) => setIds(have.includes(id) ? have.filter((x) => x !== id) : [...have, id])
+  const usual = [...hab].filter(([id, h]) => map.has(id) && h.days >= 2).sort((a, b) => b[1].days - a[1].days).slice(0, 14).map(([id]) => map.get(id)!)
+  const found = q.trim() ? smartSearch(list, q, 6).filter((f) => !have.includes(f.id)) : []
+  const eaten = mine.reduce((a, e) => ({ kcal: a.kcal + e.kcal, p: a.p + e.p, c: a.c + e.c, f: a.f + e.f, fib: a.fib + (e.fib ?? 0) }), { kcal: 0, p: 0, c: 0, f: 0, fib: 0 })
+  const target = { kcal: s.kcal - eaten.kcal, p: s.p - eaten.p, c: s.c - eaten.c, f: s.f - eaten.f, fib: Math.max(0, (14 * s.kcal) / 1000 - eaten.fib) }
+  const plan = useMemo(() => {
+    const chosen = have.map((id) => map.get(id)).filter((f): f is FoodItem => !!f)
+    if (!chosen.length || !use.length || target.kcal < 100) return null
+    return planDay({ foods: chosen, target, meals: use, split: daySplit(logs, today, s.kcal, use), habits: hab, blocked: repeatBlocker({ eatenToday: mine, logs, today }), eggsLeft: eggRoom(mine), diet: loadDiet() })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [have, map, use.join(), logs, s.kcal, s.p, s.c, s.f])
+  const t = plan?.total
+  return (
+    <div className="space-y-4">
+      <Card className="space-y-3">
+        <h3 className="font-semibold">What foods do you have today?</h3>
+        <p className="text-xs text-zinc-400">Pick what is in your kitchen or what you can get. I will split it over the day's meals and say how much of each. Only these foods are used.</p>
+        {usual.length > 0 && <div className="flex flex-wrap gap-2">{usual.map((f) => <button key={f.id} onClick={() => toggle(f.id)} className={`px-3 h-8 rounded-full text-xs ${have.includes(f.id) ? 'bg-lime-400 text-black font-medium' : 'bg-zinc-800 text-zinc-300'}`}>{f.name}</button>)}</div>}
+        <input className={inputCls} placeholder="Search another food…" value={q} onChange={(e) => setQ(e.target.value)} />
+        {found.map((f) => <button key={f.id} onClick={() => { toggle(f.id); setQ('') }} className="block w-full text-left text-sm py-1.5 border-t border-zinc-800">{f.name}<span className="text-xs text-zinc-500"> · add</span></button>)}
+        {have.filter((id) => !usual.some((f) => f.id === id)).length > 0 && <div className="flex flex-wrap gap-2">{have.filter((id) => !usual.some((f) => f.id === id)).map((id) => <button key={id} onClick={() => toggle(id)} className="px-3 h-8 rounded-full text-xs bg-lime-400 text-black font-medium">{map.get(id)?.name ?? id} ✕</button>)}</div>}
+        <div className="space-y-1"><p className="text-xs text-zinc-400">Meals to plan{doneMeals.size ? ' (the ones already logged today are off)' : ''}</p>
+          <div className="flex flex-wrap gap-2">{MEAL_LIST.map((m) => <button key={m} onClick={() => setMeals(use.includes(m) ? use.filter((x) => x !== m) : MEAL_LIST.filter((x) => x === m || use.includes(x)))} className={`px-3 h-8 rounded-full text-xs ${use.includes(m) ? 'bg-lime-400 text-black font-medium' : 'bg-zinc-800 text-zinc-300'}`}>{MEAL_LABEL[m]}</button>)}</div></div>
+        <p className="text-xs text-zinc-500">Left today: {round0(Math.max(0, target.kcal))} kcal · protein {round0(Math.max(0, target.p))} g · carbs {round0(Math.max(0, target.c))} g · fat {round0(Math.max(0, target.f))} g (never exceeded)</p>
+      </Card>
+      {!have.length && <Empty>Pick a few foods above.</Empty>}
+      {have.length > 0 && !plan && <Card><p className="text-sm text-zinc-400">{target.kcal < 100 ? 'Your calories for today are already used.' : !use.length ? 'Choose at least one meal to plan.' : 'No plan could be made from these foods.'}</p></Card>}
+      {plan && t && (
+        <Card className="divide-y divide-zinc-800 !py-0">
+          {plan.meals.map((m) => (
+            <div key={m.meal} className="py-3 space-y-1">
+              <div className="flex items-baseline justify-between"><h4 className="font-semibold text-sm">{MEAL_LABEL[m.meal]}<span className="ml-2 text-xs font-normal text-zinc-500">around {MEAL_TIME[m.meal]}</span></h4><span className="text-xs text-zinc-500 tabular-nums">{round0(m.total.kcal)} kcal · P{round0(m.total.p)} C{round0(m.total.c)} F{round0(m.total.f)}</span></div>
+              <ul className="text-sm text-zinc-300 space-y-0.5">{m.items.map((p) => <li key={p.food.id}>{p.food.name} <span className="text-zinc-500">· {formatAmount(p.amount)} {unitLabel(p.food, p.unit, p.amount)} · {round0(p.n.kcal)} kcal</span></li>)}</ul>
+              <Btn variant="ghost" className="!h-8 text-xs" onClick={() => logPortions(m.items, today, m.meal, `Logged ${MEAL_LABEL[m.meal].toLowerCase()}`)}>Log this meal</Btn>
+            </div>
+          ))}
+          <div className="py-3 space-y-1">
+            <p className="text-sm font-medium tabular-nums">Plan total: {round0(t.kcal)} kcal · P{round0(t.p)} C{round0(t.c)} F{round0(t.f)} · fibre {round0(t.fib)} g</p>
+            <p className="text-xs text-zinc-500">{round0(eaten.kcal + t.kcal)} kcal for the day against your {s.kcal.toLocaleString('en-IN')} target, with what you have already logged.</p>
+            {plan.notes.map((n) => <p key={n} className="text-xs text-amber-300">{n}</p>)}
+            {plan.unused.length > 0 && <p className="text-xs text-zinc-500">Not needed: {plan.unused.join(', ')}.</p>}
+            <p className="text-[11px] text-zinc-600">A good fit by my own scoring, not a rule from a paper. Times are a typical spread, not from research.</p>
+          </div>
+        </Card>
+      )}
     </div>
   )
 }

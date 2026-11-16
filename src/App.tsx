@@ -4,6 +4,7 @@ import FoodPage from './pages/Food'
 import ActivityPage from './pages/Activity'
 import BodyPage from './pages/Body'
 import ProgressPage from './pages/Progress'
+import HowPage from './pages/How'
 import { UndoHost } from './lib/undo'
 
 const tabs = [
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/activity" element={<ActivityPage />} />
         <Route path="/body" element={<BodyPage />} />
         <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/how" element={<HowPage />} />
         <Route path="*" element={<Navigate to="/workout" replace />} />
       </Routes>
       <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">

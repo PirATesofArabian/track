@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, type PhotoRec, type Workout } from '../lib/db'
+import { dataTables, db, type BodyWeight, type PhotoRec, type Routine, type Workout } from '../lib/db'
+import { RegionsCard } from '../lib/regionsUi'
 import { MUSCLES, TRACKING_LABEL, cap, type Exercise } from '../data/exerciseDb'
 import { Bar, Btn, Card, Chart, Chips, Empty, Stat, inputCls } from '../lib/ui'
 import { offerUndo } from '../lib/undo'
@@ -10,14 +11,16 @@ import { LEVELS, PR_LABEL, balance, currentBests, daysSinceMuscle, detectPRs, de
 import { download, fmtDuration, fmtInt, fmtKg, prettyDate, round0, round1, shiftDate, todayStr } from '../lib/util'
 import { setText } from '../lib/format'
 import { weightTrend } from '../lib/body'
+import { adherence, bodyMassOn, deficitNow, frequency, loadRatio, realChange, relativeStrength, setRecords } from '../lib/science'
 import { ReportView } from './Review'
 import { PlanView } from './PlanView'
 import { GoalsView } from './Goals'
 import { BadgesView, WrappedView } from './Achievements'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
+import { lastSynced, syncNow, useSyncStatus } from '../lib/sync'
+import { adminUsers, authenticate, getAccount, signOut, type Account, type AdminUser } from '../lib/account'
 
 const prValue = (p: PR) => (p.type === 'reps' || p.type === 'session_reps' ? `${p.value} reps` : p.type === 'duration' ? fmtDuration(p.value) : p.type === 'distance' ? `${fmtInt(p.value)} m` : `${fmtKg(Math.round(p.value * 10) / 10)} kg`)
-const VERDICT: Record<string, string> = { too_little: 'Not enough data (need 20+ sets in 4 weeks)', a_heavy: 'Skewed to the first', b_heavy: 'Skewed to the second', balanced: 'Balanced' }
 const STALL_NAME: Record<string, string> = { break: 'Break', frequency: 'Frequency', effort: 'Effort', volume: 'Volume', variation: 'Variation', same_load: 'Same load', deload: 'Deload', rep_range: 'Rep range' }
 
 export default function ProgressPage() {
@@ -25,10 +28,13 @@ export default function ProgressPage() {
   const profile = useProfile()
   const workouts = useLiveQuery(() => db.workouts.toArray(), []) ?? []
   const weights = useLiveQuery(() => db.bodyWeight.toArray(), []) ?? []
+  const routines = useLiveQuery(() => db.routines.toArray(), []) ?? []
+  const logs = useLiveQuery(() => db.foodLog.toArray(), []) ?? []
+  const measurements = useLiveQuery(() => db.measurements.toArray(), []) ?? []
   type Tab = 'overview' | 'week' | 'plan' | 'goals' | 'badges' | 'wrapped' | 'lifts' | 'records' | 'data'
   const [sp] = useSearchParams()
   const want = sp.get('tab') as Tab | null
-  const [tab, setTab] = useState<Tab>(want && ['week', 'plan', 'goals', 'badges', 'wrapped'].includes(want) ? want : 'overview')
+  const [tab, setTab] = useState<Tab>(want && ['week', 'plan', 'goals', 'badges', 'wrapped', 'data'].includes(want) ? want : 'overview')
   const today = todayStr()
   const done = useMemo(() => finished(workouts), [workouts])
   const map = useMemo(() => sessionsByExercise(workouts, idx), [workouts, idx])
@@ -37,20 +43,20 @@ export default function ProgressPage() {
   return (
     <div className="space-y-4">
       <Chips value={tab} onChange={setTab} options={[{ v: 'overview', label: 'Overview' }, { v: 'week', label: 'Week' }, { v: 'plan', label: 'Plan' }, { v: 'goals', label: 'Goals' }, { v: 'badges', label: 'Badges' }, { v: 'wrapped', label: 'Wrapped' }, { v: 'lifts', label: 'Lifts' }, { v: 'records', label: `Records${prs.length ? ` (${prs.length})` : ''}` }, { v: 'data', label: 'Data' }]} />
-      {tab === 'overview' && <Overview ws={workouts} done={done} idx={idx} map={map} today={today} bodyKg={weightTrend(weights).slice(-1)[0]?.trendKg ?? null} sex={profile.sex} />}
+      {tab === 'overview' && <Overview ws={workouts} done={done} idx={idx} map={map} today={today} bodyKg={weightTrend(weights).slice(-1)[0]?.trendKg ?? null} sex={profile.sex} experience={profile.experience} routines={routines} deficit={deficitNow({ profile, weights, measurements, logs, today })} />}
       {tab === 'week' && <ReportView />}
       {tab === 'plan' && <PlanView />}
       {tab === 'goals' && <GoalsView />}
       {tab === 'badges' && <BadgesView />}
       {tab === 'wrapped' && <WrappedView />}
-      {tab === 'lifts' && <Lifts map={map} idx={idx} prs={prs} today={today} />}
+      {tab === 'lifts' && <Lifts map={map} idx={idx} prs={prs} today={today} weights={weights} />}
       {tab === 'records' && <Records prs={prs} idx={idx} />}
-      {tab === 'data' && <Data />}
+      {tab === 'data' && <><AccountCard /><Data /></>}
     </div>
   )
 }
 
-function Overview({ ws, done, idx, map, today, bodyKg, sex }: { ws: Workout[]; done: ReturnType<typeof finished>; idx: ReturnType<typeof useExerciseIndex>; map: ReturnType<typeof sessionsByExercise>; today: string; bodyKg: number | null; sex: string }) {
+function Overview({ ws, done, idx, map, today, bodyKg, sex, experience, routines, deficit }: { ws: Workout[]; done: ReturnType<typeof finished>; idx: ReturnType<typeof useExerciseIndex>; map: ReturnType<typeof sessionsByExercise>; today: string; bodyKg: number | null; sex: string; experience: string; routines: Routine[]; deficit: boolean }) {
   const [days, setDays] = useState(7)
   const from = days > 3650 ? '0000-01-01' : shiftDate(today, -(days - 1))
   const inRange = done.filter((w) => w.date >= from)
@@ -58,7 +64,9 @@ function Overview({ ws, done, idx, map, today, bodyKg, sex }: { ws: Workout[]; d
   const sets = muscleSets(ws, idx, from, today).filter((m) => m.muscle !== 'cardio')
   const maxW = Math.max(10, ...sets.map((m) => m.weighted))
   const bal = balance(ws, idx, today)
-  const stalls = detectStalls(ws, idx, today)
+  const allStalls = detectStalls(ws, idx, today, experience, deficit)
+  const stalls = allStalls.filter((s) => !s.holding), holding = allStalls.filter((s) => s.holding)
+  const freq = frequency(ws, today), adh = adherence(routines, ws, today), load = loadRatio(ws, today)
   const levels = strengthLevels(map, today, bodyKg, sex)
   const dots = dotsFromSessions(map, today, bodyKg, sex)
   const since = daysSinceMuscle(ws, idx, today).filter((m) => m.muscle !== 'cardio' && m.muscle !== 'adductors')
@@ -81,6 +89,13 @@ function Overview({ ws, done, idx, map, today, bodyKg, sex }: { ws: Workout[]; d
         <Stat label="Volume" value={`${round1(vol / 1000)} t`} />
         <Stat label="Sets" value={inRange.reduce((a, w) => a + w.exercises.reduce((b, e) => b + e.sets.filter((s) => s.setType !== 'warmup').length, 0), 0)} />
       </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <Stat label="Per week" value={freq?.perWeek != null ? round1(freq.perWeek) : '—'} sub={freq?.perWeek == null ? 'needs 7 days' : `${freq.total} in ${freq.days} days`} />
+        <Stat label="This month" value={freq?.thisMonth ?? 0} sub="workouts" />
+        {adh && <Stat label="Adherence" value={`${Math.round(adh.pct)}%`} sub={`${adh.completed} of ${adh.planned} planned, 4 wk`} />}
+      </div>
+      {load?.spike && <Card className="!py-3 border-amber-400/40"><p className="text-sm text-amber-300">Load ratio {round1(load.ratio)}: {load.acute} sets this week against a usual {round1(load.chronic)}.</p><p className="text-xs text-zinc-500">A sudden jump above 1.5 is linked with more injuries (Gabbett 2016). A prompt to look at your training, not a prediction.</p></Card>}
 
       <Card className="space-y-2">
         <h3 className="font-semibold">Weekly volume (tonnes)</h3>
@@ -105,11 +120,11 @@ function Overview({ ws, done, idx, map, today, bodyKg, sex }: { ws: Workout[]; d
 
       <Card className="space-y-3">
         <h3 className="font-semibold">Balance · last 4 weeks</h3>
+        <p className="text-xs text-zinc-500">Sets and their ratio, with no verdict: no study sets a right ratio for everyone.</p>
         {bal.map((b) => (
           <div key={b.label} className="space-y-1">
             <div className="flex justify-between text-sm"><span>{b.label}</span><span className="text-xs text-zinc-400 tabular-nums">{b.aL} {b.a} : {b.b} {b.bL}{b.ratio !== null ? ` (${round1(b.ratio * 100) / 100})` : ''}</span></div>
-            <Bar value={b.a} max={Math.max(1, b.a + b.b)} color={b.verdict === 'balanced' ? 'bg-lime-400' : b.verdict === 'too_little' ? 'bg-zinc-600' : 'bg-amber-400'} />
-            <p className={`text-xs ${b.verdict === 'balanced' ? 'text-lime-400/80' : 'text-zinc-500'}`}>{b.verdict === 'a_heavy' ? `More ${b.aL.toLowerCase()} than ${b.bL.toLowerCase()}` : b.verdict === 'b_heavy' ? `More ${b.bL.toLowerCase()} than ${b.aL.toLowerCase()}` : VERDICT[b.verdict]}</p>
+            <Bar value={b.a} max={Math.max(1, b.a + b.b)} />
           </div>
         ))}
       </Card>
@@ -129,6 +144,14 @@ function Overview({ ws, done, idx, map, today, bodyKg, sex }: { ws: Workout[]; d
         </Card>
       )}
 
+      {holding.length > 0 && (
+        <Card className="space-y-2">
+          <h3 className="font-semibold">Holding</h3>
+          <p className="text-xs text-zinc-500">You are eating in a deficit, where keeping your strength is the goal. These lifts have not moved, and that is fine.</p>
+          {holding.map((s) => <p key={s.key} className="text-sm">{idx.get(s.key).name} <span className="text-xs text-zinc-500">· {s.weeks} weeks at {fmtKg(s.bestKg)}×{s.bestReps}</span></p>)}
+        </Card>
+      )}
+
       {stalls.length > 0 && (
         <Card className="space-y-3">
           <h3 className="font-semibold">Stalled lifts</h3>
@@ -144,7 +167,7 @@ function Overview({ ws, done, idx, map, today, bodyKg, sex }: { ws: Workout[]; d
   )
 }
 
-function Lifts({ map, idx, prs, today }: { map: ReturnType<typeof sessionsByExercise>; idx: ReturnType<typeof useExerciseIndex>; prs: PR[]; today: string }) {
+function Lifts({ map, idx, prs, today, weights }: { map: ReturnType<typeof sessionsByExercise>; idx: ReturnType<typeof useExerciseIndex>; prs: PR[]; today: string; weights: BodyWeight[] }) {
   const keys = [...map.keys()].filter((k) => map.get(k)!.length).sort((a, b) => idx.get(a).name.localeCompare(idx.get(b).name))
   const [sel, setSel] = useState('')
   const [q, setQ] = useState('')
@@ -157,6 +180,10 @@ function Lifts({ map, idx, prs, today }: { map: ReturnType<typeof sessionsByExer
   const myPrs = prs.filter((p) => p.exerciseKey === key)
   const prDates = new Set(myPrs.filter((p) => p.type === 'e1rm' || p.type === 'load' || p.type === 'reps' || p.type === 'duration' || p.type === 'distance').map((p) => p.date))
   const slope = e1rmSlope(list, today)
+  const real = x.tracking === 'weight_reps' ? realChange(list, weights, today) : null
+  const lastE1 = [...list].reverse().find((s) => s.bestE1rm !== null)
+  const rel = lastE1 ? relativeStrength(lastE1.bestE1rm as number, bodyMassOn(weights, lastE1.date)) : null
+  const sets = setRecords(workouts, x, key)
   const metric: { name: string; unit: string; get: (s: (typeof list)[number]) => number | null; fmt?: (n: number) => string } =
     x.tracking === 'weight_reps' ? { name: 'Estimated 1RM', unit: 'kg', get: (s) => s.chartE1rm }
     : x.tracking === 'weighted_bodyweight' ? { name: 'Added weight', unit: 'kg', get: (s) => s.heaviestLoad }
@@ -176,7 +203,13 @@ function Lifts({ map, idx, prs, today }: { map: ReturnType<typeof sessionsByExer
         <Chart points={pts} unit={metric.unit} format={metric.fmt} />
         <p className="text-xs text-zinc-500"><span className="text-yellow-400">●</span> = new record. Drag across the chart to read each session.</p>
         {slope !== null && <p className="text-xs text-zinc-300">Trend: {slope >= 0 ? '+' : ''}{round1(slope * 10) / 10} kg/week (last 8 weeks)</p>}
-        {x.tracking === 'weight_reps' && <p className="text-xs text-zinc-500">Epley estimate from sets of ≤10 reps, counting reps in reserve. It's an estimate, not a tested max.</p>}
+        {x.tracking === 'weight_reps' && <p className="text-xs text-zinc-500">Epley estimate from your best set of 1–10 reps, counting reps in reserve; one rule all the way along. It's an estimate, not a tested max.</p>}
+        {real && (
+          <p className={`text-xs ${real.verdict === 'up' ? 'text-lime-400' : real.verdict === 'down' ? 'text-amber-300' : 'text-zinc-400'}`}>
+            {real.verdict === 'up' ? `Real progress: e1RM up ${round1(real.change * 100)}% over the last 4 weeks.` : real.verdict === 'down' ? `A real drop: e1RM down ${round1(Math.abs(real.change) * 100)}% against the 4 weeks before.` : real.forSize ? `Strength for your size went up ${round1((real.sizedChange as number) * 100)}% (body-weight adjusted), though the plain change is only ${round1(real.change * 100)}%.` : `Change of ${round1(real.change * 100)}% is inside normal noise (under 5%).`}
+          </p>
+        )}
+        {rel && <p className="text-xs text-zinc-300">Relative strength {round1(rel.ratio * 100) / 100}× body weight <span className="text-zinc-500">· size-adjusted index {round1(rel.sized * 10) / 10} (e1RM ÷ mass^0.67)</span></p>}
       </Card>
       <div className="grid grid-cols-2 gap-2">
         {best.e1rm !== null && <Stat label="Best e1RM" value={`${round0(best.e1rm)} kg`} />}
@@ -187,6 +220,14 @@ function Lifts({ map, idx, prs, today }: { map: ReturnType<typeof sessionsByExer
         {best.duration !== null && <Stat label="Longest time" value={fmtDuration(best.duration)} />}
         {best.distance !== null && <Stat label="Longest distance" value={`${fmtInt(best.distance)} m`} />}
       </div>
+      {sets.length > 0 && (
+        <Card className="space-y-1.5">
+          <h3 className="font-semibold">Set records</h3>
+          <p className="text-xs text-zinc-500">The heaviest weight for each rep count. The number to beat in that rep range.</p>
+          <div className="grid grid-cols-3 gap-x-3 gap-y-1 text-sm">{sets.map((s) => <span key={s.reps} className="tabular-nums">{s.reps} × <b>{fmtKg(s.kg)}</b> <span className="text-[10px] text-zinc-600">kg</span></span>)}</div>
+        </Card>
+      )}
+      <RegionsCard exKey={key} />
       <Card className="space-y-2">
         <h3 className="font-semibold">Recent sessions</h3>
         {history.map((w) => {
@@ -219,10 +260,78 @@ function Records({ prs, idx }: { prs: PR[]; idx: ReturnType<typeof useExerciseIn
 const blobToUrl = (b: Blob) => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result as string); r.onerror = rej; r.readAsDataURL(b) })
 const urlToBlob = async (u: string) => (await fetch(u)).blob()
 
+function AccountCard() {
+  const [acct, setAcct] = useState<Account | null>(getAccount())
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [server, setServer] = useState(() => localStorage.getItem('tracker-server') ?? '')
+  const [user, setUser] = useState('')
+  const [pw, setPw] = useState('')
+  const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [users, setUsers] = useState<AdminUser[] | null>(null)
+  const sync = useSyncStatus()
+  const when = (t: number) => (t ? new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'not yet')
+  async function go() {
+    setBusy(true); setErr('')
+    try {
+      const a = await authenticate(mode, server, user, pw)
+      localStorage.setItem('tracker-server', server.trim())
+      setAcct(a); setPw(''); void syncNow()
+    } catch (e) { setErr((e as Error).message) } finally { setBusy(false) }
+  }
+  async function loadUsers() {
+    if (!acct) return
+    setErr('')
+    try { setUsers(await adminUsers(acct)) } catch (e) { setErr((e as Error).message) }
+  }
+  const day = (s: number | null) => (s ? new Date(s * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'never')
+  return (
+    <Card className="space-y-2">
+      <h3 className="font-semibold">Account</h3>
+      {acct ? (
+        <>
+          <p className="text-sm">Signed in as <b>{acct.username}</b>{acct.isAdmin ? ' (admin)' : ''} <span className="text-xs text-zinc-500">· {acct.server || 'this address'}</span></p>
+          <p className="text-xs text-zinc-500">Your data is kept on this device and synced to your server. If the same entry was changed on two devices, the later edit wins. Photos are not synced.</p>
+          <Btn className="w-full" disabled={sync.running} onClick={() => void syncNow()}>{sync.running ? 'Syncing…' : 'Sync now'}</Btn>
+          <p className={`text-xs ${sync.error ? 'text-red-400' : 'text-zinc-500'}`}>{sync.error || `Last synced: ${when(sync.last || lastSynced())}${sync.last && !sync.running ? ` · sent ${sync.pushed}, received ${sync.pulled}` : ''}`}</p>
+          {acct.isAdmin && (
+            <div className="space-y-1">
+              <Btn variant="ghost" className="w-full" onClick={loadUsers}>{users ? 'Refresh users' : 'Show users'}</Btn>
+              {err && <p className="text-xs text-red-400">{err}</p>}
+              {users && (
+                <div className="rounded-xl border border-zinc-800 divide-y divide-zinc-800 text-sm">
+                  {users.map((u) => (
+                    <div key={u.username} className="px-3 py-2 flex justify-between gap-3">
+                      <span>{u.username}{u.isAdmin ? <span className="text-xs text-lime-400"> admin</span> : ''}</span>
+                      <span className="text-xs text-zinc-500 text-right">joined {day(u.createdAt)} · last in {day(u.lastLogin)} · {u.sessions} signed in</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-[11px] text-zinc-600">To reset a password or remove a user, use the server commands on the Pi (passwd, deluser).</p>
+            </div>
+          )}
+          <Btn variant="ghost" className="w-full" onClick={async () => { await signOut(); setAcct(null); setUsers(null) }}>Sign out</Btn>
+        </>
+      ) : (
+        <>
+          <p className="text-xs text-zinc-500">Optional. Your own Raspberry Pi server. The app works fully without it.</p>
+          <Chips value={mode} onChange={(m: 'login' | 'register') => { setMode(m); setErr('') }} options={[{ v: 'login', label: 'Sign in' }, { v: 'register', label: 'Create account' }]} />
+          <input className={inputCls} placeholder="Server, e.g. 192.168.1.13:8787 (empty if the Pi serves this app)" autoCapitalize="none" value={server} onChange={(e) => setServer(e.target.value)} />
+          <input className={inputCls} placeholder="Username" autoCapitalize="none" autoComplete="username" value={user} onChange={(e) => setUser(e.target.value)} />
+          <input className={inputCls} type="password" placeholder={mode === 'register' ? 'Password (8+ characters)' : 'Password'} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} value={pw} onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && user && pw && go()} />
+          {err && <p className="text-xs text-red-400">{err}</p>}
+          <Btn className="w-full" disabled={busy || !user || !pw} onClick={go}>{busy ? 'Please wait…' : mode === 'register' ? 'Create account' : 'Sign in'}</Btn>
+        </>
+      )}
+    </Card>
+  )
+}
+
 function Data() {
   async function exportAll() {
     const data: Record<string, unknown> = { _app: 'gym-food-tracker', _version: 2, _exported: new Date().toISOString() }
-    for (const t of db.tables) data[t.name] = await t.toArray()
+    for (const t of dataTables()) data[t.name] = await t.toArray()
     data.photos = await Promise.all((data.photos as PhotoRec[]).map(async (p) => ({ ...p, blob: await blobToUrl(p.blob) })))
     download(`tracker-backup-${todayStr()}.json`, JSON.stringify(data))
   }
@@ -232,13 +341,13 @@ function Data() {
     if (d._app !== 'gym-food-tracker') { alert('This is not a backup from this app.'); return }
     if (!confirm('This replaces everything currently stored on this device. Continue?')) return
     const before: Record<string, unknown[]> = {}
-    for (const t of db.tables) before[t.name] = await t.toArray()
+    for (const t of dataTables()) before[t.name] = await t.toArray()
     if (Array.isArray(d.photos)) d.photos = await Promise.all((d.photos as { blob: unknown }[]).map(async (p) => ({ ...p, blob: typeof p.blob === 'string' ? await urlToBlob(p.blob) : p.blob })))
-    await db.transaction('rw', db.tables, async () => {
-      for (const t of db.tables) { await t.clear(); const rows = d[t.name]; if (Array.isArray(rows)) await t.bulkAdd(rows) }
+    await db.transaction('rw', dataTables(), async () => {
+      for (const t of dataTables()) { await t.clear(); const rows = d[t.name]; if (Array.isArray(rows)) await t.bulkAdd(rows) }
     })
-    offerUndo('Backup imported', () => db.transaction('rw', db.tables, async () => {
-      for (const t of db.tables) { await t.clear(); await t.bulkAdd(before[t.name]) }
+    offerUndo('Backup imported', () => db.transaction('rw', dataTables(), async () => {
+      for (const t of dataTables()) { await t.clear(); await t.bulkAdd(before[t.name]) }
     }))
   }
   async function addNotes(file: File) {
@@ -263,6 +372,7 @@ function Data() {
       <label className="h-11 rounded-[.875rem] bg-zinc-800 text-sm flex items-center justify-center cursor-pointer">Add entries from file (keeps your data)
         <input type="file" accept="application/json" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) addNotes(f) }} />
       </label>
+      <Link to="/how" className="h-11 rounded-[.875rem] bg-zinc-800 text-sm flex items-center justify-center">How every number is calculated</Link>
     </Card>
   )
 }

@@ -33,8 +33,8 @@ export const katch = (leanKg: number) => 370 + 21.6 * leanKg
 export const PAL: Record<DailyActivity, number> = { sitting: 1.4, mixed: 1.5, on_feet: 1.6, physical: 1.8 }
 export const PAL_LABEL: Record<DailyActivity, string> = { sitting: 'Mostly sitting', mixed: 'Mixed', on_feet: 'On my feet', physical: 'Physical job' }
 const GOAL_ADJ: Record<Goal, number> = { hypertrophy: 0.1, strength_hypertrophy: 0.1, strength: 0.05, fat_loss: -0.2, recomposition: -0.1, general_fitness: 0 }
-// 2.0 to 2.2 g per kg of current body weight for every goal; carbs and fat share what is left (see splitMacros).
-export const PROTEIN_PER_KG: Record<Goal, [number, number]> = { hypertrophy: [2, 2.2], strength_hypertrophy: [2, 2.2], strength: [2, 2.2], fat_loss: [2, 2.2], recomposition: [2, 2.2], general_fitness: [2, 2.2] }
+// g of protein per kg of body weight (the science page): 1.6 to 2.2 to build, 2.0 to 2.4 when losing fat or recomposing, 1.2 to 1.6 for general fitness.
+export const PROTEIN_PER_KG: Record<Goal, [number, number]> = { hypertrophy: [1.6, 2.2], strength_hypertrophy: [1.6, 2.2], strength: [1.6, 2.2], fat_loss: [2, 2.4], recomposition: [2, 2.4], general_fitness: [1.2, 1.6] }
 export const GOAL_LABEL: Record<Goal, string> = {
   fat_loss: 'Lose fat, show abs', hypertrophy: 'Build muscle', recomposition: 'Aesthetic recomp', strength_hypertrophy: 'Strength + size', strength: 'Strength', general_fitness: 'General fitness',
 }
@@ -47,12 +47,11 @@ export const GOAL_HELP: Record<Goal, string> = {
   general_fitness: 'Stay fit and hold your weight. Calories at maintenance.',
 }
 export const GOAL_ORDER: Goal[] = ['fat_loss', 'hypertrophy', 'recomposition', 'strength_hypertrophy', 'strength', 'general_fitness']
-/** Of the calories left after protein, this share goes to fat and the rest to carbs (fat never below 0.8 g per kg). */
-export const FAT_SHARE_OF_REST = 0.4
+/** Fat is the larger of 0.8 g per kg and 25% of energy; carbohydrate is what is left at 4 kcal per g. */
+export const FAT_SHARE_OF_ENERGY = 0.25
 export function splitMacros(kcal: number, kg: number, proteinG: number) {
-  const rest = Math.max(0, kcal - proteinG * 4)
-  const fat = Math.max(roundTo(0.8 * kg, 5), roundTo((rest * FAT_SHARE_OF_REST) / 9, 5))
-  return { fat, carbs: Math.max(0, roundTo((rest - fat * 9) / 4, 5)) }
+  const fat = Math.max(roundTo(0.8 * kg, 5), roundTo((kcal * FAT_SHARE_OF_ENERGY) / 9, 5))
+  return { fat, carbs: Math.max(0, roundTo((kcal - proteinG * 4 - fat * 9) / 4, 5)) }
 }
 /**
  * Expected weekly body-weight change for an intake against maintenance. 7,700 kcal per kg of body mass is the
@@ -101,9 +100,9 @@ export function weightTrend(ws: BodyWeight[]) {
   })
 }
 
-/** kg / week from regression on the trend over the last 8 weeks (needs ≥6 points over ≥14 days). */
+/** kg / week: least-squares slope of the trend over the last 4 weeks (needs ≥6 weigh-ins over ≥14 days). */
 export function weightRate(trend: ReturnType<typeof weightTrend>, today: string): number | null {
-  const from = parseDate(today).getTime() - 56 * 864e5
+  const from = parseDate(today).getTime() - 28 * 864e5
   const pts = trend.filter((t) => parseDate(t.date).getTime() >= from)
   if (pts.length < 6 || (parseDate(pts[pts.length - 1].date).getTime() - parseDate(pts[0].date).getTime()) / 864e5 < 14) return null
   const xs = pts.map((p) => parseDate(p.date).getTime() / 864e5), ys = pts.map((p) => p.trendKg)
@@ -165,6 +164,7 @@ export function bodySnapshot(a: { profile: Profile; weights: BodyWeight[]; measu
     ffmi: lean !== null && p.heightCm ? { value: ffmi(lean, p.heightCm), norm: ffmiNormalized(lean, p.heightCm) } : null,
     whtr: m.waistCm && p.heightCm ? waistToHeight(m.waistCm.value, p.heightCm) : null,
     energy: energy({ sex: p.sex, age, heightCm: p.heightCm, weightKg: kg, bodyFatPct: bf?.pct ?? null, goal: p.goal, dailyActivity: p.dailyActivity, trainingDays: days, sessionMinutes: p.sessionMinutes ?? 60 }),
-    rate: (() => { const r = weightRate(trend, a.today); return r !== null && kg !== null ? { kgPerWeek: r, verdict: rateVerdict(r, kg, p.goal, p.experience), target: targetRate(p.goal, p.experience) } : null })(),
+    // A target and verdict exist only for the Fat Loss goal; other goals see the rate alone.
+    rate: (() => { const r = weightRate(trend, a.today); return r !== null && kg !== null ? { kgPerWeek: r, verdict: p.goal === 'fat_loss' ? rateVerdict(r, kg, p.goal, p.experience) : null, target: p.goal === 'fat_loss' ? targetRate(p.goal, p.experience) : null } : null })(),
   }
 }

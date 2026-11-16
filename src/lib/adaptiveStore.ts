@@ -5,6 +5,7 @@ import { db, DEFAULT_SETTINGS, type EventKind, type PainArea, type PainRec, type
 import { useExerciseIndex, useProfile, useSettings } from './hooks'
 import { bodySnapshot } from './body'
 import { detectStalls, type ExIndex } from './perf'
+import { deficitNow } from './science'
 import { todayStr } from './util'
 import {
   addDays, aggregateWeeks, buildModel, decide, EVENT_KINDS, MAX_EVENT_DAYS, PAIN_AREAS, planMuscleSets, planSessionMinutes, recoveryGaps, reportWindow, simulateChanges, slotsOf,
@@ -187,11 +188,11 @@ export function useAdaptive() {
     const deloads = data.temps.filter((t) => t.cause === 'deload').map((t) => t.start).sort()
     const input: DecisionInput = {
       nextWeekStart: next, weeks, model,
-      person: { goal: profile.goal, experience: profile.experience, weightKg: snap.kg, bmrKcal: snap.energy?.bmr ?? null, targetKg: goal?.targetValue ?? null, ownProtein },
+      person: { goal: profile.goal, experience: profile.experience, weightKg: snap.kg, bmrKcal: snap.energy?.bmr ?? null, targetKg: goal?.targetValue ?? null, ownProtein, age: snap.age, heightCm: profile.heightCm ?? null },
       plan: { kcal: settings.kcal ?? null, proteinG: settings.p ?? null, muscleSets: planMuscleSets(plan.slots, plan.days), keys: [...new Set(plan.slots.map((s) => s.key))], sessionMinutes: planSessionMinutes(plan.slots) },
       events: data.events.filter((e) => e.end >= day).sort((a, b) => a.start.localeCompare(b.start)),
       pains: data.pains.filter((p) => !p.done), temporaries: temps, lastDeload: deloads.length ? deloads[deloads.length - 1] : null,
-      stalls: detectStalls(ws, idx, day, profile.experience).map((s) => ({ key: s.key, cause: s.cause, variationKey: s.variationKey })),
+      stalls: detectStalls(ws, idx, day, profile.experience, deficitNow({ profile, weights: data.weights, measurements: data.meas, logs: data.food, today: day })).filter((s) => !s.holding).map((s) => ({ key: s.key, cause: s.cause, variationKey: s.variationKey })),
       exName: (k) => idx.get(k).name, exists: (k) => idx.all.some((e) => e.key === k),
     }
     const decision = routine ? decide(input) : null

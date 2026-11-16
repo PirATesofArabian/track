@@ -127,6 +127,18 @@ export type SupplementLog = { id?: number; date: string; name: string; qty: numb
 export type SleepLog = { date: string; bed: string; wake: string; hours: number; quality?: 1 | 2 | 3 | 4 | 5; note?: string }
 export type KV = { key: string; value: unknown }
 
+// ── Sync support (see sync.ts). Every synced row carries a global `uid` and an `updatedAt` edit time, stamped by the hooks below. ──
+export const SYNC_TABLES = ['workouts', 'foodLog', 'customFoods', 'customExercises', 'routines', 'bodyWeight', 'measurements', 'activity', 'goals', 'events', 'pain', 'memories', 'supplements',
+  'water', 'settings', 'profile', 'reports', 'kv', 'sleep'] as const
+/** Tables keyed by their own field: their uid is "table:key", so two devices agree on it without talking. */
+export const NATURAL_KEY: Record<string, string> = { water: 'date', settings: 'id', profile: 'id', reports: 'weekStart', kv: 'key', sleep: 'date' }
+/** Custom exercises and foods are referenced as custom:<id> / custom-<id>, so their ids must be unique across devices. */
+export const KEEP_ID = new Set(['customExercises', 'customFoods'])
+export const syncSignal: { fn: (() => void) | null } = { fn: null }
+export type Tombstone = { uid: string; tbl: string; updatedAt: number }
+const rid = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, '0')).join('') // randomUUID needs https
+const bigId = () => Math.floor(1e9 + Math.random() * 9e12)
+
 class AppDB extends Dexie {
   workouts!: EntityTable<Workout, 'id'>
   foodLog!: EntityTable<FoodEntry, 'id'>
@@ -148,6 +160,7 @@ class AppDB extends Dexie {
   kv!: EntityTable<KV, 'key'>
   supplements!: EntityTable<SupplementLog, 'id'>
   sleep!: EntityTable<SleepLog, 'date'>
+  syncTombstones!: EntityTable<Tombstone, 'uid'>
 
   constructor() {
     super('gym-food-tracker')
@@ -189,10 +202,75 @@ class AppDB extends Dexie {
       goals: '++id, kind', events: '++id, start', pain: '++id, start', memories: '++id', reports: 'weekStart', photos: '++id, date', kv: 'key',
     })
     this.version(4).stores({ supplements: '++id, date', sleep: 'date' })
+    this.version(5)
+      .stores({
+        workouts: '++id, date, uid, updatedAt', foodLog: '++id, date, uid, updatedAt', customFoods: '++id, name, uid, updatedAt', customExercises: '++id, uid, updatedAt',
+        routines: '++id, name, uid, updatedAt', bodyWeight: '++id, date, uid, updatedAt', measurements: '++id, date, uid, updatedAt', activity: '++id, date, uid, updatedAt',
+        goals: '++id, kind, uid, updatedAt', events: '++id, start, uid, updatedAt', pain: '++id, start, uid, updatedAt', memories: '++id, uid, updatedAt', supplements: '++id, date, uid, updatedAt',
+        water: 'date, updatedAt', settings: 'id, updatedAt', profile: 'id, updatedAt', reports: 'weekStart, updatedAt', kv: 'key, updatedAt', sleep: 'date, updatedAt',
+        syncTombstones: 'uid',
+      })
+      .upgrade(async (tx) => {
+        ;(tx as unknown as { remote: boolean }).remote = true // not an edit: do not stamp "now"
+        for (const name of SYNC_TABLES) {
+          const kp = NATURAL_KEY[name]
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await tx.table(name).toCollection().modify((r: any) => { if (r.uid) return; r.uid = kp ? `${name}:${r[kp]}` : rid(); r.updatedAt = 1 })
+        }
+        // Custom exercises and foods used small local ids (custom:1). Two devices would clash, so give them unique ids and rewrite every reference.
+        const remap = new Map<string, string>()
+        for (const [name, pre] of [['customExercises', 'custom:'], ['customFoods', 'custom-']] as const) {
+          const t = tx.table(name)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          for (const r of (await t.toArray()) as any[]) {
+            if (r.id >= 1e9) continue
+            const nid = bigId()
+            await t.delete(r.id); await t.add({ ...r, id: nid })
+            remap.set(pre + r.id, pre + nid)
+          }
+        }
+        if (remap.size) {
+          for (const name of ['workouts', 'routines', 'goals', 'pain', 'foodLog', 'kv']) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await tx.table(name).toCollection().modify((r: any) => {
+              const before = JSON.stringify(r)
+              const after = before.replace(/"(custom[:-]\d+)"/g, (m, k: string) => (remap.has(k) ? `"${remap.get(k)}"` : m))
+              if (after !== before) Object.assign(r, JSON.parse(after))
+            })
+          }
+        }
+      })
   }
 }
 
 export const db = new AppDB()
+
+/** Rows to back up / restore: everything except the sync bookkeeping. */
+export const dataTables = () => db.tables.filter((t) => t.name !== 'syncTombstones')
+
+for (const name of SYNC_TABLES) {
+  const t = db.table(name)
+  const kp = NATURAL_KEY[name]
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  t.hook('creating', function (primKey: any, obj: any, trans: any) {
+    if (trans?.remote) return
+    obj.updatedAt = Date.now()
+    if (!String(obj.uid ?? '').startsWith('seed:')) obj.uid = kp ? `${name}:${primKey}` : rid() // a copy, undo or import is a new record; the old uid stays tombstoned
+    syncSignal.fn?.()
+    if (primKey == null && KEEP_ID.has(name)) return bigId()
+  })
+  t.hook('updating', function (_mods: any, primKey: any, obj: any, trans: any) {
+    if (trans?.remote) return
+    syncSignal.fn?.()
+    return { updatedAt: Date.now(), uid: obj.uid ?? (kp ? `${name}:${primKey}` : rid()) }
+  })
+  t.hook('deleting', function (this: any, _primKey: any, obj: any, trans: any) {
+    if (trans?.remote || !obj?.uid) return
+    const rec: Tombstone = { uid: obj.uid, tbl: name, updatedAt: Date.now() }
+    this.onsuccess = () => { syncSignal.fn?.(); Dexie.ignoreTransaction(() => db.syncTombstones.put(rec).catch(() => undefined)) }
+  })
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}
 
 export const DEFAULT_SETTINGS: Settings = { id: 1, kcal: 2400, p: 150, c: 280, f: 70, waterGoal: 3000, stepGoal: 8000 }
 export const DEFAULT_PROFILE: Profile = { id: 1, sex: 'male', goal: 'fat_loss', dailyActivity: 'mixed', experience: 'intermediate', trainingDays: 6, sessionMinutes: 75 }

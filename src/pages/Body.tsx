@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_PROFILE, db, type DailyActivity, type Goal, type Measurement, type Profile } from '../lib/db'
-import { BAND_LABEL, GOAL_HELP, GOAL_LABEL, GOAL_ORDER, MEASURE_HELP, MEASURE_KEYS, MEASURE_LABEL, PAL_LABEL, bodySnapshot, paceKgPerWeek, splitMacros, targetRate, type MeasureKey } from '../lib/body'
+import { BAND_LABEL, GOAL_HELP, PROTEIN_PER_KG, GOAL_LABEL, GOAL_ORDER, MEASURE_HELP, MEASURE_KEYS, MEASURE_LABEL, PAL_LABEL, bodySnapshot, paceKgPerWeek, splitMacros, targetRate, type MeasureKey } from '../lib/body'
 import { Btn, Card, Chart, Chips, Empty, Field, NumInput, Sheet, Stat, TextInput, inputCls } from '../lib/ui'
 import { deleteWithUndo } from '../lib/undo'
 import { useProfile, useSettings } from '../lib/hooks'
@@ -49,11 +49,11 @@ export default function BodyPage() {
             <div className="grid grid-cols-3 gap-2">
               <Stat label="7-day avg" value={`${round1(s.kg)} kg`} />
               <Stat label="Latest" value={`${weights[weights.length - 1]?.kg ?? '–'} kg`} sub={weights.length ? prettyDate(weights[weights.length - 1].date) : ''} />
-              <Stat label="Rate" value={s.rate ? `${s.rate.kgPerWeek > 0 ? '+' : ''}${round1(s.rate.kgPerWeek * 10) / 10} kg/wk` : '—'} sub={s.rate ? VERDICT[s.rate.verdict] : 'needs 2+ weeks'} />
+              <Stat label="Rate" value={s.rate ? `${s.rate.kgPerWeek > 0 ? '+' : ''}${round1(s.rate.kgPerWeek * 10) / 10} kg/wk` : '—'} sub={s.rate ? (s.rate.verdict ? VERDICT[s.rate.verdict] : '4-week trend') : 'needs 6 weigh-ins over 2 weeks'} />
             </div>
             <Chart points={recent.map((w) => ({ x: w.date, y: w.kg, label: prettyDate(w.date) }))} trend={s.trend.slice(-60).map((t) => ({ x: t.date, y: t.trendKg }))} color="#38bdf8" unit="kg" />
             <p className="text-xs text-zinc-500">Dashed line = 7-day average, the real direction. Daily weight swings with water and salt.</p>
-            {s.rate && <p className="text-xs text-zinc-400">Target pace for “{GOAL_LABEL[profile.goal]}”: {round1(s.rate.target[0] * s.kg * 100) / 100} to {round1(s.rate.target[1] * s.kg * 100) / 100} kg/week.</p>}
+            {s.rate?.target && <p className="text-xs text-zinc-400">Target pace for “{GOAL_LABEL[profile.goal]}”: {round1(s.rate.target[0] * s.kg * 100) / 100} to {round1(s.rate.target[1] * s.kg * 100) / 100} kg/week.</p>}
           </>
         ) : <Empty>Log your first weigh-in.</Empty>}
         {weights.slice(-5).reverse().map((w) => (
@@ -107,15 +107,15 @@ export default function BodyPage() {
         <div className="space-y-1.5">
           <p className="text-xs text-zinc-400">What are you training for?</p>
           <Chips value={profile.goalChosen ? profile.goal : (null as unknown as Goal)} onChange={async (v: Goal) => { await db.profile.put({ ...DEFAULT_PROFILE, ...profile, id: 1, goal: v, goalChosen: true }); setSheet('targets') }} options={GOAL_ORDER.map((g) => ({ v: g, label: GOAL_LABEL[g] }))} className="!flex-wrap !overflow-visible" />
-          <p className="text-xs text-zinc-500">{profile.goalChosen ? GOAL_HELP[profile.goal] : 'Pick one and your calories and macros are worked out from your current weight. Protein is 2 to 2.2 g per kg; the rest of the calories split between carbs and fat.'}</p>
+          <p className="text-xs text-zinc-500">{profile.goalChosen ? GOAL_HELP[profile.goal] : 'Pick one and your calories and macros are worked out from your current weight. Protein follows your goal’s g-per-kg range, fat is the larger of 0.8 g per kg and 25% of calories, and carbs are what is left.'}</p>
         </div>
         {s.energy ? (
           <div className="space-y-2 text-sm">
             <div className="grid grid-cols-2 gap-2">
               <Stat label="Maintenance (TDEE)" value={`${fmtInt(s.energy.tdee)} kcal`} sub={`${s.energy.method === 'mifflin' ? 'Mifflin-St Jeor' : 'Katch-McArdle'} BMR ${fmtInt(s.energy.bmr)}`} />
               <Stat label={`Target · ${GOAL_LABEL[profile.goal]}`} value={`${fmtInt(s.energy.targetKcal)} kcal`} sub={s.energy.adjustment === 0 ? 'maintenance' : `${s.energy.adjustment > 0 ? '+' : '−'}${Math.round(Math.abs(s.energy.adjustment) * 100)}%`} />
-              <Stat label="Protein (2–2.2 g/kg)" value={`${s.energy.proteinG} g`} sub={`${round0(s.energy.protein[0])}–${round0(s.energy.protein[1])} g range`} />
-              <Stat label="Carbs / Fat" value={`${s.energy.carbs} g / ${s.energy.fat} g`} sub="rest of calories, 60 / 40" />
+              <Stat label={`Protein (${PROTEIN_PER_KG[profile.goal][0]}–${PROTEIN_PER_KG[profile.goal][1]} g/kg)`} value={`${s.energy.proteinG} g`} sub={`${round0(s.energy.protein[0])}–${round0(s.energy.protein[1])} g range`} />
+              <Stat label="Carbs / Fat" value={`${s.energy.carbs} g / ${s.energy.fat} g`} sub="fat ≥0.8 g/kg and 25% of kcal" />
             </div>
             <p className="text-xs text-zinc-500">
               BMR {fmtInt(s.energy.bmr)} × {({ sitting: 1.4, mixed: 1.5, on_feet: 1.6, physical: 1.8 })[profile.dailyActivity]} ({PAL_LABEL[profile.dailyActivity].toLowerCase()}) ≈ {fmtInt(s.energy.dailyKcal)}, plus ~{s.energy.trainingKcal} kcal/day for {logged ?? profile.trainingDays} lifting sessions a week → {fmtInt(s.energy.tdee)}.
@@ -147,7 +147,7 @@ export default function BodyPage() {
                 <Btn variant="ghost" className="flex-1" onClick={() => setDial(e.targetKcal)}>Use calculated ({fmtInt(e.targetKcal)})</Btn>
                 <Btn className="flex-1" disabled={kcal === settings.kcal && protein === settings.p && m.carbs === settings.c && m.fat === settings.f} onClick={async () => { await db.settings.put({ ...settings, kcal, p: protein, c: m.carbs, f: m.fat }); setDial(null) }}>Save as my goal</Btn>
               </div>
-              <p className="text-xs text-zinc-500">How the number is built: Mifflin-St Jeor resting burn (Mifflin et al., 1990) × activity factor + lifting. The pace uses 7,700 kcal per kg of body mass (Wishnofsky, 1958); it overstates change after the first weeks because the body adapts (Hall et al., 2011). Protein 2–2.2 g/kg is the range reported to maximise muscle gain in training (Morton et al., 2018) and to protect it in a deficit (Helms et al., 2014). These are estimates: if your 7-day weight average isn't moving as shown after 2–3 weeks, move the slider by 100–150 kcal.</p>
+              <p className="text-xs text-zinc-500">How the number is built: Mifflin-St Jeor resting burn (Mifflin et al., 1990) × activity factor + lifting. The pace uses 7,700 kcal per kg of body mass (Wishnofsky, 1958); it overstates change after the first weeks because the body adapts (Hall et al., 2011). Protein per kg follows your goal’s range, the one reported to maximise muscle gain in training (Morton et al., 2018) and to protect it in a deficit (Helms et al., 2014). These are estimates: if your 7-day weight average isn't moving as shown after 2–3 weeks, move the slider by 100–150 kcal.</p>
             </div>
           )
         })()}
@@ -162,7 +162,7 @@ export default function BodyPage() {
       <Sheet open={sheet === 'targets'} onClose={() => setSheet(null)} title="Apply targets">
         {s.energy && (
           <div className="space-y-3 text-sm">
-            <p className="text-xs text-zinc-400">{GOAL_LABEL[profile.goal]} at {round1(s.kg ?? 0)} kg: protein 2–2.2 g per kg, then the rest of the calories split between carbs and fat.</p>
+            <p className="text-xs text-zinc-400">{GOAL_LABEL[profile.goal]} at {round1(s.kg ?? 0)} kg: protein {PROTEIN_PER_KG[profile.goal][0]}–{PROTEIN_PER_KG[profile.goal][1]} g per kg, fat the larger of 0.8 g per kg and 25% of calories, carbs the rest.</p>
             <p>Set daily goals to <b>{fmtInt(s.energy.targetKcal)} kcal</b>, <b>{s.energy.proteinG} g</b> protein, <b>{s.energy.carbs} g</b> carbs and <b>{s.energy.fat} g</b> fat?</p>
             <p className="text-xs text-zinc-500">Current: {settings.kcal} kcal · P{settings.p} C{settings.c} F{settings.f}</p>
             <Btn className="w-full" onClick={async () => { await db.settings.put({ ...settings, kcal: s.energy!.targetKcal, p: s.energy!.proteinG, c: s.energy!.carbs, f: s.energy!.fat }); setSheet(null) }}>Apply</Btn>

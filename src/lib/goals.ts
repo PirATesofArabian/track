@@ -76,7 +76,7 @@ export type Checkin = {
   weekStart: string; sessions: number; target: number | null; workingSets: number; improved: { key: string; name: string; gainKg: number }[]; records: number
   stalled: { key: string; name: string; weeks: number }[]; focus: { kind: string; text: string }
 }
-export function weeklyCheckin(a: { workouts: Workout[]; idx: ExIndex; target: number | null; experience: string; today: string }): Checkin | null {
+export function weeklyCheckin(a: { workouts: Workout[]; idx: ExIndex; target: number | null; experience: string; today: string; deficit?: boolean }): Checkin | null {
   const done = a.workouts.filter((w) => w.finishedAt).sort((x, y) => x.date.localeCompare(y.date))
   const thisWeek = mondayOfDate(a.today), lastWeek = shiftDate(thisWeek, -7)
   if (!done[0] || done[0].date >= thisWeek) return null
@@ -91,14 +91,16 @@ export function weeklyCheckin(a: { workouts: Workout[]; idx: ExIndex; target: nu
   improved.sort((x, y) => y.gainKg - x.gainKg)
   const records = detectPRs(sessionsByExercise(upTo, a.idx)).filter((p) => p.date >= lastWeek && p.date < thisWeek).length
   const sunday = shiftDate(thisWeek, -1)
-  const stalled = detectStalls(upTo, a.idx, sunday, a.experience).map((s) => ({ key: s.key, name: a.idx.get(s.key).name, weeks: s.weeks }))
+  const stalled = detectStalls(upTo, a.idx, sunday, a.experience, !!a.deficit).filter((s) => !s.holding).map((s) => ({ key: s.key, name: a.idx.get(s.key).name, weeks: s.weeks }))
   const sets = (from: string, to: string) => upTo.filter((w) => w.date >= from && w.date < to).reduce((n, w) => n + w.exercises.reduce((m, e) => m + e.sets.filter(isWork).length, 0), 0)
+  // Load ratio = sets in the last 7 days ÷ the weekly average of the 4 weeks before; needs 5 weeks of history; flagged above 1.5.
   let spike: { chronic: number; ratio: number } | null = null
-  if (done[0].date <= shiftDate(sunday, -35)) {
+  if (daysBetween(done[0].date, sunday) >= 35) {
     const chronic = sets(shiftDate(lastWeek, -28), lastWeek) / 4, acute = sets(lastWeek, thisWeek)
-    if (chronic >= 10 && acute / chronic > 1.5) spike = { chronic, ratio: acute / chronic }
+    if (chronic > 0 && acute / chronic > 1.5) spike = { chronic, ratio: acute / chronic }
   }
-  const bal = balance(upTo, a.idx, sunday).find((b) => b.verdict === 'a_heavy' || b.verdict === 'b_heavy')
+  // Only push to pull is ever acted on, outside 0.67 to 1.5 once the pair has 20 sets.
+  const bal = balance(upTo, a.idx, sunday).find((b) => b.label === 'Push vs pull' && (b.verdict === 'a_heavy' || b.verdict === 'b_heavy'))
   let focus: Checkin['focus']
   if (week.length === 0) focus = { kind: 'start', text: 'No workouts last week. Plan two short sessions this week to get going again.' }
   else if (spike) focus = { kind: 'ease_off', text: `You did ${spike.ratio.toFixed(1)} times your usual sets. Keep this week closer to ${Math.round(spike.chronic)} sets.` }

@@ -4,7 +4,9 @@ import { db, type Routine, type PlanDay, type Workout, type WEx, type WSet, type
 import { EQUIPMENT, LIBRARY, MUSCLES, TRACKING_LABEL, cap, type Exercise, type Muscle, type Tracking } from '../data/exerciseDb'
 import { Btn, Card, Chips, Empty, Field, NumInput, Sheet, TextInput, Toast, inputCls } from '../lib/ui'
 import { deleteWithUndo, offerUndo } from '../lib/undo'
-import { useExerciseIndex, useNow, useSeedPlan } from '../lib/hooks'
+import { useExerciseIndex, useNow, useProfile, useSeedPlan } from '../lib/hooks'
+import { RegionsCard } from '../lib/regionsUi'
+import { sessionLoad, suggestNext, weeklyRings } from '../lib/science'
 import { PR_LABEL, e1rm, finished, prsForWorkout, setVolume, workoutVolume, type ExIndex, type PR } from '../lib/perf'
 import { blankSet, fieldsFor, setText } from '../lib/format'
 import { fmtDuration, fmtInt, fmtKg, prettyDate, round0, todayStr, WEEKDAYS } from '../lib/util'
@@ -64,6 +66,9 @@ export default function WorkoutPage() {
 // ───────────── start screen ─────────────
 function Start({ idx }: { idx: ExIndex }) {
   const routines = useLiveQuery(() => db.routines.toArray(), []) ?? []
+  const all = useLiveQuery(() => db.workouts.toArray(), []) ?? []
+  const profile = useProfile()
+  const rings = weeklyRings({ ws: all, routines, sessionMinutes: profile.sessionMinutes ?? null, today: todayStr() })
   const recent = useLiveQuery(() => db.workouts.orderBy('date').reverse().filter((w) => !!w.finishedAt).limit(1).toArray(), []) ?? []
   const today = new Date().getDay()
 
@@ -76,8 +81,20 @@ function Start({ idx }: { idx: ExIndex }) {
   }
   const todays = routines.flatMap((r) => r.days.filter((d) => d.weekdays.includes(today)).map((d) => ({ r, d })))
 
+  const ring = (label: string, done: number, planned: number | null) => (
+    <div className="flex-1 text-center">
+      <svg viewBox="0 0 36 36" className="w-14 h-14 mx-auto -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="#27272a" strokeWidth="4" /><circle cx="18" cy="18" r="15" fill="none" stroke="#a3e635" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${planned ? Math.min(1, done / planned) * 94.2 : 0} 94.2`} /></svg>
+      <p className="text-sm font-semibold tabular-nums">{done}{planned ? <span className="text-zinc-500">/{planned}</span> : ''}</p>
+      <p className="text-[11px] text-zinc-500">{label}</p>
+    </div>
+  )
+
   return (
     <div className="space-y-3">
+      <Card className="space-y-2">
+        <div className="flex justify-between items-baseline"><h3 className="font-semibold">This week</h3><span className="text-xs text-zinc-500">{rings.streak ? `${rings.streak}-week streak` : 'against your plan'}</span></div>
+        <div className="flex gap-2">{ring('Sessions', rings.sessions.done, rings.sessions.planned)}{ring('Working sets', rings.sets.done, rings.sets.planned)}{ring('Minutes', rings.minutes.done, rings.minutes.planned)}</div>
+      </Card>
       {todays.map(({ r, d }) => (
         <Card key={`${r.id}-${d.name}`} className="space-y-2 border-lime-400/40">
           <p className="text-xs text-lime-400">Today · {WEEKDAYS[today]}</p>
@@ -120,6 +137,7 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
   const [plates, setPlates] = useState<number | null | undefined>(undefined)
   const [listening, setListening] = useState<string | null>(null)
   const now = useNow(500)
+  const profile = useProfile()
   const save = (exercises: WEx[]) => db.workouts.update(w.id, { exercises })
   const keys = w.exercises.map((e) => e.key).join('|')
   const prev = useLiveQuery(async () => {
@@ -183,7 +201,7 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
       if (at >= 0) sets[at] = { ...sets[at], weightKg, reps, done: sure, doneAt: sure ? Date.now() : undefined }; else sets.push(row)
       save(w.exercises.map((q, i) => (i === ei ? { ...q, sets } : q)))
       setToast(sure ? `Logged ${e.name}: ${weightKg ?? '–'} × ${reps ?? '–'}` : `Filled ${e.name}: ${weightKg ?? '–'} × ${reps ?? '–'} — tap ✓ to confirm`)
-      if (sure) { const sec = e.target?.rest ?? (idx.get(e.key, e.name).category === 'compound' ? 150 : 90); if (!ss.get(ei)?.linkedNext) setRest({ until: Date.now() + sec * 1000, total: sec }) }
+      if (sure) { const sec = e.target?.rest ?? (idx.get(e.key, e.name).category === 'compound' ? 120 : 90); if (!ss.get(ei)?.linkedNext) setRest({ until: Date.now() + sec * 1000, total: sec }) }
     } catch (err) {
       setListening(null)
       setToast(speechErrorText((err as Error).message))
@@ -193,7 +211,7 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
     const e = w.exercises[ei], s = e.sets[si]
     patchSet(ei, si, { done: !s.done, doneAt: s.done ? undefined : Date.now() })
     if (!s.done && s.setType !== 'warmup' && !ss.get(ei)?.linkedNext) {
-      const sec = e.target?.rest ?? (idx.get(e.key, e.name).category === 'compound' ? 150 : 90)
+      const sec = e.target?.rest ?? (idx.get(e.key, e.name).category === 'compound' ? 120 : 90)
       setRest({ until: Date.now() + sec * 1000, total: sec })
     }
   }
@@ -227,7 +245,7 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
       {listening && <p className="text-xs text-red-300">{listening}</p>}
 
       {w.exercises.map((e, ei) => (
-        <ExCard key={`${e.key}-${ei}`} e={e} x={idx.get(e.key, e.name)} prev={prev[e.key] ?? []}
+        <ExCard key={`${e.key}-${ei}`} experience={profile.experience} e={e} x={idx.get(e.key, e.name)} prev={prev[e.key] ?? []}
           ss={ss.get(ei)} canLink={ei < w.exercises.length - 1}
           onSuperset={() => save(toggleSuperset(w.exercises, ei))} onWarmups={() => addWarmups(ei)}
           onPlates={(wt) => setPlates(wt)}
@@ -292,6 +310,9 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
                 <button className="h-9 px-3 rounded-xl bg-zinc-700 text-xs" onClick={() => setRest(null)}>Skip</button>
               </div>
             </div>
+            <div className="mt-2 flex gap-1">
+              {[60, 90, 120, 180].map((s) => <button key={s} className={`h-8 flex-1 rounded-xl text-xs ${rest.total === s ? 'bg-lime-400/30 text-lime-300' : 'bg-zinc-700'}`} onClick={() => setRest({ until: Date.now() + s * 1000, total: s })}>{s} s</button>)}
+            </div>
             <div className="mt-2 h-1.5 rounded-full bg-zinc-700 overflow-hidden"><div className="h-full bg-lime-400" style={{ width: `${rest.total ? Math.max(0, Math.min(100, (remaining / rest.total) * 100)) : 0}%` }} /></div>
           </div>
         </div>
@@ -302,8 +323,8 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
   )
 }
 
-function ExCard({ e, x, prev, ss, canLink, onSuperset, onWarmups, onPlates, onPatch, onToggle, onAddSet, onRemoveSet, onRemove, onSwap, onNote }: {
-  e: WEx; x: Exercise; prev: WSet[]
+function ExCard({ experience, e, x, prev, ss, canLink, onSuperset, onWarmups, onPlates, onPatch, onToggle, onAddSet, onRemoveSet, onRemove, onSwap, onNote }: {
+  experience: string; e: WEx; x: Exercise; prev: WSet[]
   ss?: { label: string; linkedNext: boolean; linkedPrev: boolean }; canLink: boolean
   onSuperset: () => void; onWarmups: () => void; onPlates: (w: number | null) => void
   onPatch: (si: number, p: Partial<WSet>) => void; onToggle: (si: number) => void; onAddSet: (t: SetType) => void
@@ -317,11 +338,7 @@ function ExCard({ e, x, prev, ss, canLink, onSuperset, onWarmups, onPlates, onPa
   const cols = `1.75rem repeat(${fields.length}, minmax(0,1fr)) 2.75rem`
   const lastTop = prev.length ? prev.reduce((a, s) => ((s.weightKg ?? 0) > (a.weightKg ?? 0) ? s : a), prev[0]) : null
   // double-progression hint: if every previous set reached the top of the range, suggest more load
-  const hint = (() => {
-    if (!t?.repMax || !prev.length || x.tracking !== 'weight_reps') return null
-    const allTop = prev.every((s) => (s.reps ?? 0) >= t.repMax)
-    return allTop ? `Hit ${t.repMax} reps on all sets last time → add the smallest increment.` : `Aim to add a rep on each set before adding load.`
-  })()
+  const hint = suggestNext(prev, t, x, experience)?.text ?? null
   let wn = 0
 
   return (
@@ -489,6 +506,7 @@ function Library({ idx }: { idx: ExIndex }) {
             <p className="text-zinc-400">{cap(open.primary)}{open.secondary.length ? ` · also ${open.secondary.join(', ')}` : ''} · {open.equipment} · {open.category}</p>
             <p className="text-zinc-400">Tracked as: {TRACKING_LABEL[open.tracking]}{open.loadMode === 'per_hand' ? ' (per hand)' : ''}{open.eachSide ? ' · each side' : ''}</p>
             {open.instructions && <p>{open.instructions}</p>}
+            <RegionsCard exKey={open.key} />
             {open.custom && (
               <div className="flex gap-2">
                 <Btn variant="ghost" className="flex-1" onClick={() => { setCreating(open); setOpen(null) }}>Edit</Btn>
@@ -608,7 +626,7 @@ function Summary({ id, idx, onClose }: { id: number; idx: ExIndex; onClose: () =
           )
         })}
         <div className="space-y-2 pt-2 border-t border-zinc-800">
-          <Field label="Session effort (RPE 1–10)"><NumInput value={w.sessionRpe} onChange={(v) => db.workouts.update(id, { sessionRpe: v })} /></Field>
+          <Field label="Session effort (RPE 1–10)" hint={sessionLoad(w) ? `Session load ${sessionLoad(w)} = effort × minutes (Foster)` : undefined}><NumInput value={w.sessionRpe} onChange={(v) => db.workouts.update(id, { sessionRpe: v })} /></Field>
           <Field label="Calories burned (optional — from a watch)" hint={k?.estimated ? `Estimate: ${k.basis}` : undefined}><NumInput value={w.kcalBurned} onChange={(v) => db.workouts.update(id, { kcalBurned: v })} /></Field>
           <Field label="Notes"><TextInput value={w.notes ?? ''} onCommit={(v) => db.workouts.update(id, { notes: v })} placeholder="How did it go?" /></Field>
         </div>

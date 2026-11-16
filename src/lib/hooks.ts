@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_PROFILE, DEFAULT_SETTINGS, db, type Profile, type Settings } from './db'
+import { DEFAULT_PROFILE, DEFAULT_SETTINGS, db, type Profile, type Routine, type Settings } from './db'
 import { buildExerciseIndex } from './perf'
 import { V_TAPER } from './plan'
 
@@ -20,11 +20,13 @@ export function useSeedPlan() {
     ;(async () => {
       const s = (await db.settings.get(1)) ?? DEFAULT_SETTINGS
       if (s.seededPlan) return
-      await db.transaction('rw', db.routines, db.settings, async () => {
+      await db.transaction('rw', db.routines, db.settings, async (tx) => {
         const cur = await db.settings.get(1)
         if (cur?.seededPlan) return
-        await db.routines.add(structuredClone(V_TAPER))
-        await db.settings.put({ ...(cur ?? DEFAULT_SETTINGS), seededPlan: true })
+        // Not an edit: stamped as the oldest possible, so it can never overwrite your real plan or goals on another device.
+        ;(tx as unknown as { remote: boolean }).remote = true
+        await db.routines.put({ ...structuredClone(V_TAPER), uid: 'seed:v-taper', updatedAt: 1 } as Routine)
+        await db.settings.put({ ...(cur ?? DEFAULT_SETTINGS), seededPlan: true, uid: 'settings:1', updatedAt: (cur as { updatedAt?: number } | undefined)?.updatedAt ?? 1 } as Settings)
       })
     })()
   }, [])

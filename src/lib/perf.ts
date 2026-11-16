@@ -66,12 +66,10 @@ export function sessionPerf(x: Exercise, e: WEx, workoutId: number, date: string
     workoutId, date, exerciseKey: e.key, bestE1rm: null, bestE1rmSet: null, chartE1rm: null, heaviestLoad: null, mostReps: null,
     longestDuration: null, longestDistance: null, bestSetVolume: null, sessionVolume: null, sessionReps: null,
   }
-  let low: number | null = null
   for (const s of e.sets) {
     if (isLoaded(s, x)) {
       const v = e1rmApplies(x) ? e1rm(s.weightKg, s.reps, s.rir) : null
       if (v !== null && (d.bestE1rm === null || v > d.bestE1rm)) { d.bestE1rm = v; d.bestE1rmSet = s }
-      if (v !== null && (s.reps ?? 0) <= 6 && (low === null || v > low)) low = v
       const w = s.weightKg ?? 0
       if (d.heaviestLoad === null || w > d.heaviestLoad) d.heaviestLoad = w
       const sv = setVolume(s, x)
@@ -96,7 +94,8 @@ export function sessionPerf(x: Exercise, e: WEx, workoutId: number, date: string
       if (d.mostReps === null || r > d.mostReps) d.mostReps = r
     }
   }
-  d.chartE1rm = low ?? d.bestE1rm
+  // One rule all the way along: the best set of 1 to 10 reps, so a change of rep range alone never moves the line.
+  d.chartE1rm = d.bestE1rm
   return d
 }
 
@@ -235,10 +234,18 @@ export function e1rmSlope(list: Session[], today: string, weeks = 8): number | n
 const median = (a: number[]) => { const t = [...a].sort((x, y) => x - y), n = t.length >> 1; return t.length % 2 ? t[n] : (t[n - 1] + t[n]) / 2 }
 
 export type StallCause = 'break' | 'frequency' | 'effort' | 'volume' | 'variation' | 'same_load' | 'deload' | 'rep_range'
-export type Stall = { key: string; bestKg: number; bestReps: number; bestDate: string; weeks: number; sessionsSince: number; cause: StallCause; text: string; variationKey?: string; targetKg?: number; reps?: [number, number] }
+export type Stall = { holding?: boolean; key: string; bestKg: number; bestReps: number; bestDate: string; weeks: number; sessionsSince: number; cause: StallCause; text: string; variationKey?: string; targetKg?: number; reps?: [number, number] }
 const VARIATIONS = variations as Record<string, string[]>
-/** Weight-reps exercises (≥4 sessions, trained in last 14 days) whose best set hasn't moved for ≥3 weeks. Cause ladder is theirs. */
-export function detectStalls(ws: Workout[], idx: ExIndex, today: string, experience: string = 'intermediate'): Stall[] {
+/** Weeks without progress before a lift counts as stalled: slower progress as you get stronger. */
+export const STALL_WEEKS: Record<string, number> = { beginner: 3, intermediate: 4, advanced: 6 }
+/** Longest a lift is shown as "holding" while eating in a deficit. */
+export const HOLDING_WEEKS = 8
+/**
+ * Weight-reps exercises (≥3 sessions, trained in the last 14 days) whose best set hasn't moved for the experience threshold
+ * (3 / 4 / 6 weeks). In a deficit, a lift that hasn't moved is `holding` for up to 8 weeks instead of stalled; callers must
+ * leave holding lifts out of every stall decision. Cause ladder is theirs.
+ */
+export function detectStalls(ws: Workout[], idx: ExIndex, today: string, experience: string = 'intermediate', deficit = false): Stall[] {
   const per = new Map<string, { date: string; sets: { w: number; r: number; rir: number | null }[] }[]>()
   for (const w of finished(ws)) for (const e of w.exercises) {
     const x = idx.get(e.key, e.name)
@@ -253,7 +260,7 @@ export function detectStalls(ws: Workout[], idx: ExIndex, today: string, experie
   for (const [k, l] of per) lastTrained.set(k, l[l.length - 1].date)
   const out: Stall[] = []
   for (const [key, list] of per) {
-    if (list.length < 4 || daysBetween(list[list.length - 1].date, today) > 14) continue
+    if (list.length < 3 || daysBetween(list[list.length - 1].date, today) > 14) continue
     // best session: heaviest set that wasn't dominated by an earlier set, with an 80% floor of the running max
     const seen: { w: number; r: number }[] = []
     let runMax = 0
@@ -273,8 +280,9 @@ export function detectStalls(ws: Workout[], idx: ExIndex, today: string, experie
     const peak = list[best.index]
     const since = list.slice(best.index + 1)
     const weeks = Math.floor(daysBetween(peak.date, today) / 7)
-    if (weeks < 3 || since.length < 3) continue
+    if (weeks < (STALL_WEEKS[experience] ?? 4) || since.length < 1) continue
     const base = { key, bestKg: best.w, bestReps: best.r, bestDate: peak.date, weeks, sessionsSince: since.length }
+    if (deficit && weeks <= HOLDING_WEEKS) { out.push({ ...base, holding: true, cause: 'same_load', text: 'Holding your strength while you eat in a deficit. That is the goal, so nothing to fix.' }); continue }
     let gap = 0
     ;[peak, ...since].forEach((s, i, a) => { if (i) gap = Math.max(gap, daysBetween(a[i - 1].date, s.date)) })
     if (gap >= 21) { out.push({ ...base, cause: 'break', text: `A ${Math.floor(gap / 7)}-week gap in training explains this. Rebuild gradually.` }); continue }

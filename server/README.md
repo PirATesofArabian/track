@@ -10,6 +10,27 @@ python3 server/server.py serve                  # http://0.0.0.0:8787
 **First start creates an admin** called `admin` if there is none, with a random password printed once (set `ADMIN_PASSWORD` to choose it). Change it with `python3 server/server.py passwd admin`.
 If a user called `admin` already exists, it becomes the admin and its password is not touched.
 
+## Set up on a new Pi
+
+The Pi only needs Python 3. Build the app on your computer (it needs Node), then copy it over.
+
+```sh
+# on your computer, in the project folder
+npm install && npm run build
+ssh pi@PI_ADDRESS 'mkdir -p ~/gym-food-tracker'
+rsync -az --delete --exclude 'data/' --exclude '__pycache__/' server dist pi@PI_ADDRESS:~/gym-food-tracker/
+
+# on the Pi
+cd ~/gym-food-tracker
+ADMIN_PASSWORD='choose one' python3 server/server.py serve   # first start creates the admin; Ctrl+C once it is running
+sudo cp server/tracker.service /etc/systemd/system/          # edit User and the two paths first if yours differ
+sudo systemctl enable --now tracker
+systemctl is-active tracker
+```
+
+Then open `http://PI_ADDRESS:8787`, create your account, and sign in on each device (Progress → Data → Account).
+To update later, build and run the same `rsync` again. Restart (`sudo systemctl restart tracker`) only if `server.py` changed. `data/` (the database) is never copied or committed; back it up by copying `server/data/`.
+
 Commands: `users` (A marks admins; shows last login), `adduser NAME`, `passwd NAME` (signs that user out everywhere), `deluser NAME`, `makeadmin NAME`, `rmadmin NAME`. The last admin can't be deleted or demoted.
 To run it at boot, edit and install `tracker.service` (instructions at the top of the file).
 Tests: `python3 server/test_server.py`.

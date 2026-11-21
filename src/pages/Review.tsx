@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../lib/db'
 import { useExerciseIndex, useProfile, useSettings } from '../lib/hooks'
-import { buildWeeklyReport, muscleLabel, type Action, type WeeklyReport } from '../lib/weekly'
+import { buildWeeklyReport, mondayOf, muscleLabel, type Action, type WeeklyReport } from '../lib/weekly'
 import { addDays, reportWindow } from '../lib/adaptive'
 import { Bar, Btn, Card, Chart, Empty, Stat } from '../lib/ui'
-import { fmtInt, prettyDate } from '../lib/util'
+import { fmtInt, prettyDate, todayStr } from '../lib/util'
 
 const STATUS_CLS = { good: 'bg-lime-400/15 text-lime-300', close: 'bg-amber-400/15 text-amber-300', off: 'bg-red-500/15 text-red-300', none: 'bg-zinc-800 text-zinc-500' }
 const TILE: Record<string, { label: string; unit: string }> = { hardSets: { label: 'Hard sets', unit: '' }, volume: { label: 'Volume', unit: 'kg' }, minutes: { label: 'Minutes', unit: 'min' }, effort: { label: 'Avg reps left', unit: '' }, kcal: { label: 'Avg calories', unit: '' }, protein: { label: 'Avg protein', unit: 'g' } }
@@ -14,7 +14,8 @@ const WD = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 export function ReportView() {
   const idx = useExerciseIndex(), profile = useProfile(), settings = useSettings()
   const win = reportWindow(new Date())
-  const [week, setWeek] = useState(win.open)
+  const current = mondayOf(todayStr()) // the week you are in; it is a finished report only from Sunday 18:00
+  const [week, setWeek] = useState(current)
   const data = useLiveQuery(async () => ({
     workouts: await db.workouts.toArray(), logs: await db.foodLog.toArray(), weights: await db.bodyWeight.toArray(), measurements: await db.measurements.toArray(),
     goals: await db.goals.toArray(), routines: await db.routines.toArray(), prev: await db.reports.get(addDays(week, -7)),
@@ -43,11 +44,12 @@ export function ReportView() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2 print:hidden">
         <Btn variant="ghost" className="!px-3" onClick={() => setWeek(addDays(week, -7))}>‹</Btn>
-        <div className="text-center"><p className="font-semibold">{range}</p><p className="text-[11px] text-zinc-500">{week === win.open ? 'Latest report' : 'Earlier week'}</p></div>
-        <Btn variant="ghost" className="!px-3" disabled={week >= win.open} onClick={() => setWeek(addDays(week, 7))}>›</Btn>
+        <div className="text-center"><p className="font-semibold">{range}</p><p className="text-[11px] text-zinc-500">{week > win.open ? 'This week so far · not final' : week === win.open ? 'Latest report' : 'Earlier week'}</p></div>
+        <Btn variant="ghost" className="!px-3" disabled={week >= current} onClick={() => setWeek(addDays(week, 7))}>›</Btn>
       </div>
 
       <Card className="space-y-3">
+        {week > win.open && <p className="text-[11px] text-amber-300">The week is still going. Labels like "Behind" or "Not logged" are not final until Sunday evening, and this week is not saved or graded yet.</p>}
         <p className="text-sm">{r.verdict.en}</p>
         <div className="grid grid-cols-3 gap-2">
           {(['training', 'nutrition', 'body'] as const).map((k) => (

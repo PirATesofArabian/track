@@ -6,6 +6,7 @@ import { Btn, Card, Chart, Chips, Empty, Field, NumInput, Sheet, Stat, TextInput
 import { deleteWithUndo } from '../lib/undo'
 import { useProfile, useSettings } from '../lib/hooks'
 import { finished } from '../lib/perf'
+import WeightWhy from './WeightWhy'
 import PhotosCard from './Photos'
 import { SleepCard, SupplementsCard } from './Recovery'
 import { fmtInt, prettyDate, round0, round1, shiftDate, todayStr } from '../lib/util'
@@ -60,6 +61,8 @@ export default function BodyPage() {
           <div key={w.id} className="flex justify-between text-sm"><span className="text-zinc-400">{prettyDate(w.date)}</span><span>{w.kg} kg <button className="text-zinc-600 ml-2" onClick={() => deleteWithUndo(db.bodyWeight, w.id!, `Removed ${w.kg} kg weigh-in`)}>✕</button></span></div>
         ))}
       </Card>
+
+      <WeightWhy />
 
       <Card className="space-y-3">
         <h3 className="font-semibold">Body numbers</h3>

@@ -14,6 +14,7 @@ On first start, if there is no admin, one called "admin" is created with a rando
 It also serves the built app (../dist) so the app and the API share one origin.
 
 Environment: HOST (0.0.0.0), PORT (8787), DB (server/data/app.db), STATIC (dist), CORS_ORIGIN (unset = none),
+PHOTO_DIR (server/data/photos), PHOTO_QUOTA_MB (500 per account),
 SIGNUP (1; set 0 to close sign-up), ADMIN_CONTACT (text shown when a name is taken), ADMIN_PASSWORD (first-run admin password).
 """
 import getpass
@@ -22,7 +23,9 @@ import hmac
 import json
 import mimetypes
 import os
+import re
 import secrets
+import shutil
 import sqlite3
 import sys
 import threading
@@ -40,9 +43,13 @@ CORS_ORIGIN = os.environ.get('CORS_ORIGIN', '')
 SIGNUP = os.environ.get('SIGNUP', '1') != '0'
 ADMIN_CONTACT = os.environ.get('ADMIN_CONTACT', 'the admin of this server')
 
-# Tables the app syncs (src/lib/sync.ts). Photos are not synced.
+# Tables the app syncs (src/lib/sync.ts). A photo's record (date, pose) syncs like the rest; its image is a file, see /api/photo.
 SYNC_TABLES = {'customExercises', 'routines', 'customFoods', 'workouts', 'foodLog', 'bodyWeight', 'measurements', 'activity', 'water',
-               'settings', 'profile', 'goals', 'events', 'pain', 'memories', 'reports', 'kv', 'supplements', 'sleep'}
+               'settings', 'profile', 'goals', 'events', 'pain', 'memories', 'reports', 'kv', 'supplements', 'sleep', 'photos'}
+PHOTO_DIR = Path(os.environ.get('PHOTO_DIR', DB_PATH.parent / 'photos'))
+MAX_PHOTO = 10 * 1024 * 1024  # the app saves about 0.3 MB per photo (1440 px JPEG)
+PHOTO_QUOTA = int(os.environ.get('PHOTO_QUOTA_MB', '500')) * 1024 * 1024  # per account
+PHOTO_RE = re.compile(r'^/api/photo/([A-Za-z0-9_-]{1,64})$')
 MAX_SYNC_BODY = 25 * 1024 * 1024
 MAX_RECORD = 1024 * 1024
 SYNC_PAGE, SYNC_PAGE_BYTES, SYNC_MAX_CHANGES = 300, 3 * 1024 * 1024, 1000
@@ -167,7 +174,7 @@ class Handler(BaseHTTPRequestHandler):
         if CORS_ORIGIN:
             self.send_header('Access-Control-Allow-Origin', CORS_ORIGIN)
             self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
-            self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
             self.send_header('Vary', 'Origin')
         for k, v in (extra or {}).items():
             self.send_header(k, v)
@@ -233,9 +240,64 @@ class Handler(BaseHTTPRequestHandler):
                     for r in rows]})
             finally:
                 db.close()
+        m = PHOTO_RE.match(path)
+        if m:
+            return self._photo_get(m.group(1))
         if path.startswith('/api/'):
             return self._json(404, {'error': 'Not found.'})
         self._static(path)
+
+    def do_PUT(self):
+        m = PHOTO_RE.match(urlsplit(self.path).path)
+        if not m:
+            self.close_connection = True
+            return self._json(404, {'error': 'Not found.'})
+        self._photo_put(m.group(1))
+
+    def _photo_get(self, name):
+        db = connect()
+        try:
+            u = self._user(db)
+        finally:
+            db.close()
+        if not u:
+            return self._json(401, {'error': 'Not signed in.'})
+        f = PHOTO_DIR / str(u['id']) / name
+        if not f.is_file():
+            return self._json(404, {'error': 'No such photo.'})
+        data = f.read_bytes()
+        self._headers(200, 'image/jpeg', len(data), {'Cache-Control': 'private, no-store'})
+        if self.command != 'HEAD':
+            self.wfile.write(data)
+
+    def _photo_put(self, name):
+        """Store a photo's JPEG for the signed-in account. Same name, same photo, so a repeat is accepted and changes nothing."""
+        db = connect()
+        try:
+            u = self._user(db)
+        finally:
+            db.close()
+        try:
+            n = int(self.headers.get('Content-Length') or 0)
+        except ValueError:
+            n = -1
+        if not u or n <= 0 or n > MAX_PHOTO:
+            self.close_connection = True  # the body is not read
+            return self._json(401 if not u else 413, {'error': 'Not signed in.' if not u else 'A photo must be between 1 byte and %d MB.' % (MAX_PHOTO // 2 ** 20)})
+        data = self.rfile.read(n)
+        if not data.startswith(b'\xff\xd8\xff'):
+            return self._json(400, {'error': 'Photos must be JPEG.'})
+        d = PHOTO_DIR / str(u['id'])
+        d.mkdir(parents=True, exist_ok=True)
+        f = d / name
+        if f.is_file():
+            return self._json(200, {'ok': True, 'existed': True})
+        if sum(p.stat().st_size for p in d.iterdir() if p.is_file()) + n > PHOTO_QUOTA:
+            return self._json(413, {'error': 'Photo storage for this account is full (%d MB).' % (PHOTO_QUOTA // 2 ** 20)})
+        tmp = d / (name + '.part')
+        tmp.write_bytes(data)
+        os.replace(tmp, f)
+        self._json(200, {'ok': True, 'existed': False})
 
     def do_POST(self):
         path = urlsplit(self.path).path
@@ -338,7 +400,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not ok or (blob is not None and len(blob) > MAX_RECORD):
                     return self._json(400, {'error': 'A record was not valid.'})
                 clean.append((c['uid'], c['tbl'], blob, min(c['updatedAt'], now_ms + FUTURE_SLACK_MS), 1 if deleted else 0))
-            accepted, rejected = [], []
+            accepted, rejected, gone = [], [], []
             uid_user = u['id']
             if clean:
                 db.execute('BEGIN IMMEDIATE')
@@ -353,7 +415,12 @@ class Handler(BaseHTTPRequestHandler):
                         db.execute('INSERT OR REPLACE INTO records (user_id, uid, tbl, data, updated_at, deleted, seq) VALUES (?,?,?,?,?,?,?)',
                                    (uid_user, uid, tbl, blob, ts, deleted, seq))
                         accepted.append(uid)
+                        if tbl == 'photos' and deleted:
+                            gone.append(uid)
                     db.commit()
+                    for uid in gone:  # a deleted photo's image goes too
+                        if PHOTO_RE.match('/api/photo/' + uid):
+                            (PHOTO_DIR / str(uid_user) / uid).unlink(missing_ok=True)
                 except Exception:
                     db.rollback()
                     raise
@@ -496,6 +563,7 @@ def cli(argv):
                 print('%s is no longer an admin.' % name)
             else:
                 db.execute('DELETE FROM users WHERE id = ?', (row['id'],))
+                shutil.rmtree(PHOTO_DIR / str(row['id']), ignore_errors=True)
                 print('Deleted %s.' % name)
             db.commit()
         else:

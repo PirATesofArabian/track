@@ -9,8 +9,8 @@ import { RegionsCard } from '../lib/regionsUi'
 import { sessionLoad, suggestNext, weeklyRings } from '../lib/science'
 import { PR_LABEL, e1rm, finished, prsForWorkout, setVolume, workoutVolume, type ExIndex, type PR } from '../lib/perf'
 import { blankSet, fieldsFor, setText } from '../lib/format'
-import { fmtDuration, fmtInt, fmtKg, prettyDate, round0, todayStr, WEEKDAYS } from '../lib/util'
-import { workoutKcal, workoutMinutes } from '../lib/derived'
+import { fmtDuration, fmtInt, fmtKg, prettyDate, round0, shiftDate, todayStr, WEEKDAYS } from '../lib/util'
+import { nextPlanDay, restDatesOf, setRestDay, workoutKcal, workoutMinutes } from '../lib/derived'
 import { PLAN_NOTES } from '../lib/plan'
 import { warmupLadder } from '../lib/plates'
 import { toggleSuperset, supersetLabels } from '../lib/superset'
@@ -19,11 +19,14 @@ import { PainSheet } from './PlanView'
 import { NowCardView } from './Achievements'
 import { listenOnce, matchExercise, parseVoiceSet, speechCtor, speechErrorText } from '../lib/voice'
 
+/** 6 pm on a date, local time: where a workout logged after the fact is placed. */
+const atEvening = (date: string) => new Date(`${date}T18:00:00`).getTime()
+
 /** Sets from the last finished session of this exercise (for pre-filling and "last time"). */
-async function lastSets(key: string, excludeId?: number): Promise<WSet[]> {
+async function lastSets(key: string, excludeId?: number, upTo?: string): Promise<WSet[]> {
   const all = await db.workouts.orderBy('date').reverse().toArray()
   for (const w of all) {
-    if (w.id === excludeId || !w.finishedAt) continue
+    if (w.id === excludeId || !w.finishedAt || (upTo && w.date > upTo)) continue
     const ex = w.exercises.find((e) => e.key === key)
     const done = ex?.sets.filter((s) => s.done && s.setType !== 'warmup')
     if (done?.length) return done
@@ -31,8 +34,15 @@ async function lastSets(key: string, excludeId?: number): Promise<WSet[]> {
   return []
 }
 
-async function buildExercise(x: Exercise, target?: WEx['target'], excludeId?: number, note?: string): Promise<WEx> {
-  const prev = await lastSets(x.key, excludeId)
+/** Every weight you have logged on this exercise in finished sessions (used to learn your usual jump). */
+async function weightsSeen(key: string): Promise<number[]> {
+  const out: number[] = []
+  for (const w of await db.workouts.toArray()) if (w.finishedAt) for (const e of w.exercises) if (e.key === key) for (const s of e.sets) if (s.done && s.setType !== 'warmup' && (s.weightKg ?? 0) > 0) out.push(s.weightKg as number)
+  return out
+}
+
+async function buildExercise(x: Exercise, target?: WEx['target'], excludeId?: number, note?: string, upTo?: string): Promise<WEx> {
+  const prev = await lastSets(x.key, excludeId, upTo)
   const n = Math.max(1, target?.sets ?? (prev.length || 3))
   const template = prev.length ? prev : [blankSet()]
   const sets: WSet[] = Array.from({ length: n }, (_, i) => {
@@ -58,7 +68,7 @@ export default function WorkoutPage() {
       {tab === 'history' && <History idx={idx} onOpen={setSummaryId} />}
       {tab === 'plan' && <Plan idx={idx} />}
       {tab === 'exercises' && <Library idx={idx} />}
-      {summaryId !== null && <Summary id={summaryId} idx={idx} onClose={() => setSummaryId(null)} />}
+      {summaryId !== null && <Summary id={summaryId} idx={idx} onClose={() => setSummaryId(null)} onEdit={() => { setSummaryId(null); setTab('log') }} />}
     </div>
   )
 }
@@ -70,16 +80,22 @@ function Start({ idx }: { idx: ExIndex }) {
   const profile = useProfile()
   const rings = weeklyRings({ ws: all, routines, sessionMinutes: profile.sessionMinutes ?? null, today: todayStr() })
   const recent = useLiveQuery(() => db.workouts.orderBy('date').reverse().filter((w) => !!w.finishedAt).limit(1).toArray(), []) ?? []
-  const today = new Date().getDay()
 
-  async function startDay(r: Routine, d: PlanDay) {
+  const [pastDate, setPastDate] = useState(shiftDate(todayStr(), -1))
+  const [pastOpen, setPastOpen] = useState(false)
+  /** Start a plan day, or an empty workout (d = null), on `date`. A past date is logged after the fact: no timer, and you type how long it took. */
+  async function startDay(r: Routine | null, d: PlanDay | null, date = todayStr()) {
+    const past = date < todayStr()
     const exercises: WEx[] = []
-    for (const p of d.exercises) {
-      exercises.push(await buildExercise(idx.get(p.key), { sets: p.sets, repMin: p.repMin, repMax: p.repMax, rir: p.rir, rest: p.rest, cue: p.cue }))
+    for (const p of d?.exercises ?? []) {
+      exercises.push(await buildExercise(idx.get(p.key), { sets: p.sets, repMin: p.repMin, repMax: p.repMax, rir: p.rir, rest: p.rest, cue: p.cue }, undefined, undefined, date))
     }
-    await db.workouts.add({ date: todayStr(), name: d.name, startedAt: Date.now(), routineId: r.id, dayName: d.name, exercises })
+    await db.workouts.add({ date, name: d?.name ?? 'Workout', startedAt: past ? atEvening(date) : Date.now(), routineId: r?.id, dayName: d?.name, exercises, ...(past ? { minutes: 60 } : {}) })
   }
-  const todays = routines.flatMap((r) => r.days.filter((d) => d.weekdays.includes(today)).map((d) => ({ r, d })))
+  const up = nextPlanDay(routines, all, todayStr())
+  const rests = restDatesOf(useLiveQuery(() => db.kv.toArray(), []) ?? [])
+  const trainedToday = all.some((w) => w.date === todayStr() && w.finishedAt)
+  const restToday = rests.has(todayStr())
 
   const ring = (label: string, done: number, planned: number | null) => (
     <div className="flex-1 text-center">
@@ -95,14 +111,24 @@ function Start({ idx }: { idx: ExIndex }) {
         <div className="flex justify-between items-baseline"><h3 className="font-semibold">This week</h3><span className="text-xs text-zinc-500">{rings.streak ? `${rings.streak}-week streak` : 'against your plan'}</span></div>
         <div className="flex gap-2">{ring('Sessions', rings.sessions.done, rings.sessions.planned)}{ring('Working sets', rings.sets.done, rings.sets.planned)}{ring('Minutes', rings.minutes.done, rings.minutes.planned)}</div>
       </Card>
-      {todays.map(({ r, d }) => (
-        <Card key={`${r.id}-${d.name}`} className="space-y-2 border-lime-400/40">
-          <p className="text-xs text-lime-400">Today · {WEEKDAYS[today]}</p>
-          <h2 className="font-semibold text-lg">{d.name}</h2>
-          <p className="text-xs text-zinc-400">{d.focus} · {d.exercises.length} exercises · {d.exercises.reduce((a, e) => a + e.sets, 0)} sets</p>
-          <Btn className="w-full" onClick={() => startDay(r, d)}>Start {d.name}</Btn>
+      {restToday && (
+        <Card className="space-y-2 border-sky-400/40">
+          <p className="text-xs text-sky-300">Rest day</p>
+          <h2 className="font-semibold text-lg">Resting today</h2>
+          <p className="text-xs text-zinc-400">Not counted as a missed session. Your plan does not move: {up ? `${up.d.name} is still up next.` : 'nothing is owed.'}</p>
+          <Btn variant="ghost" className="w-full" onClick={() => setRestDay(todayStr(), false)}>Undo rest day</Btn>
         </Card>
-      ))}
+      )}
+      {up && !restToday && (
+        <Card className="space-y-2 border-lime-400/40">
+          <p className="text-xs text-lime-400">Up next{up.after ? ` · after ${up.after}` : ''}</p>
+          <h2 className="font-semibold text-lg">{up.d.name}</h2>
+          <p className="text-xs text-zinc-400">{up.d.focus ? `${up.d.focus} · ` : ''}{up.d.exercises.length} exercises · {up.d.exercises.reduce((a, e) => a + e.sets, 0)} sets</p>
+          <Btn className="w-full" onClick={() => startDay(up.r, up.d)}>Start {up.d.name}</Btn>
+          {!trainedToday && <Btn variant="ghost" className="w-full" onClick={() => setRestDay(todayStr(), true)}>Rest day today</Btn>}
+          <p className="text-[11px] text-zinc-500">Picked from what you did last, in the order of your plan. Not tied to a weekday. Pick any other day below.</p>
+        </Card>
+      )}
       <Card className="space-y-2">
         <h3 className="font-semibold">Start something else</h3>
         <Btn variant="ghost" className="w-full" onClick={() => db.workouts.add({ date: todayStr(), name: 'Workout', startedAt: Date.now(), exercises: [] })}>Empty workout</Btn>
@@ -112,6 +138,7 @@ function Start({ idx }: { idx: ExIndex }) {
             <span className="text-xs text-zinc-500">{d.weekdays.map((x) => WEEKDAYS[x]).join(', ') || 'any day'} · {d.exercises.length} exercises</span>
           </Btn>
         )))}
+        <Btn variant="ghost" className="w-full" onClick={() => setPastOpen(true)}>Log a workout for an earlier day</Btn>
         {recent[0] && (
           <Btn variant="ghost" className="w-full !h-auto py-2 text-left" onClick={async () => {
             const w = recent[0]
@@ -124,6 +151,19 @@ function Start({ idx }: { idx: ExIndex }) {
           </Btn>
         )}
       </Card>
+      <Sheet open={pastOpen} onClose={() => setPastOpen(false)} title="Log an earlier workout">
+        <div className="space-y-3">
+          <Field label="Which day"><input type="date" className={inputCls} value={pastDate} max={shiftDate(todayStr(), -1)} onChange={(e) => e.target.value && setPastDate(e.target.value)} /></Field>
+          <p className="text-xs text-zinc-500">{prettyDate(pastDate)}. Pick what you did, then enter the sets and how long it took.</p>
+          <Btn variant={rests.has(pastDate) ? 'primary' : 'ghost'} className="w-full" onClick={() => { void setRestDay(pastDate, !rests.has(pastDate)); setPastOpen(false) }}>{rests.has(pastDate) ? 'Undo: this was a rest day' : 'Mark this day as a rest day'}</Btn>
+          <Btn variant="ghost" className="w-full" onClick={() => { setPastOpen(false); void startDay(null, null, pastDate) }}>Empty workout</Btn>
+          {routines.flatMap((r) => r.days.map((d) => (
+            <Btn key={`${r.id}-${d.name}`} variant="ghost" className="w-full !h-auto py-2 text-left" onClick={() => { setPastOpen(false); void startDay(r, d, pastDate) }}>
+              <span className="block">{d.name}</span><span className="text-xs text-zinc-500">{d.exercises.length} exercises</span>
+            </Btn>
+          )))}
+        </div>
+      </Sheet>
     </div>
   )
 }
@@ -142,9 +182,15 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
   const keys = w.exercises.map((e) => e.key).join('|')
   const prev = useLiveQuery(async () => {
     const m: Record<string, WSet[]> = {}
-    for (const e of w.exercises) m[e.key] = await lastSets(e.key, w.id)
+    for (const e of w.exercises) m[e.key] = await lastSets(e.key, w.id, w.date)
+    return m
+  }, [keys, w.date]) ?? {}
+  const seen = useLiveQuery(async () => {
+    const m: Record<string, number[]> = {}
+    for (const e of w.exercises) m[e.key] = await weightsSeen(e.key)
     return m
   }, [keys]) ?? {}
+  const timed = w.minutes === undefined // a workout with a typed length (past or re-opened) has no live timer
   const elapsed = Math.floor((now - w.startedAt) / 1000)
   const vol = workoutVolume(w, idx)
   const doneSets = w.exercises.reduce((a, e) => a + e.sets.filter((s) => s.done && s.setType !== 'warmup').length, 0)
@@ -209,8 +255,8 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
   }
   function toggle(ei: number, si: number) {
     const e = w.exercises[ei], s = e.sets[si]
-    patchSet(ei, si, { done: !s.done, doneAt: s.done ? undefined : Date.now() })
-    if (!s.done && s.setType !== 'warmup' && !ss.get(ei)?.linkedNext) {
+    patchSet(ei, si, { done: !s.done, doneAt: s.done || !timed ? undefined : Date.now() })
+    if (timed && !s.done && s.setType !== 'warmup' && !ss.get(ei)?.linkedNext) {
       const sec = e.target?.rest ?? (idx.get(e.key, e.name).category === 'compound' ? 120 : 90)
       setRest({ until: Date.now() + sec * 1000, total: sec })
     }
@@ -222,7 +268,7 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
       if (confirm('No completed sets. Discard this workout?')) await deleteWithUndo(db.workouts, w.id, 'Workout discarded')
       return
     }
-    await db.workouts.update(w.id, { exercises: cleaned, finishedAt: Date.now() })
+    await db.workouts.update(w.id, { exercises: cleaned, finishedAt: w.minutes ? w.startedAt + w.minutes * 60000 : Date.now() })
     onDone(w.id)
   }
 
@@ -233,7 +279,15 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
     <div className="space-y-3 pb-16">
       <div className="flex items-center gap-2">
         <TextInput value={w.name} onCommit={(v) => db.workouts.update(w.id, { name: v })} />
-        <div className="text-right text-xs text-zinc-400 whitespace-nowrap tabular-nums">{fmtDuration(elapsed)}<br />{fmtInt(vol)} kg</div>
+        <div className="text-right text-xs text-zinc-400 whitespace-nowrap tabular-nums">{timed ? <>{fmtDuration(elapsed)}<br /></> : null}{fmtInt(vol)} kg</div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="Date"><input type="date" className={inputCls} value={w.date} max={todayStr()} onChange={(e) => {
+          const d = e.target.value; if (!d) return
+          const past = d < todayStr()
+          void db.workouts.update(w.id, past ? { date: d, startedAt: atEvening(d), minutes: w.minutes ?? 60 } : { date: d, ...(timed ? {} : { startedAt: atEvening(d) }) })
+        }} /></Field>
+        {!timed && <Field label="Minutes"><NumInput value={w.minutes} onChange={(v) => v && v > 0 && db.workouts.update(w.id, { minutes: Math.round(v) })} /></Field>}
       </div>
       <div className="flex items-center justify-between">
         <p className="text-xs text-zinc-500">{doneSets}/{totalSets} sets done</p>
@@ -245,7 +299,7 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
       {listening && <p className="text-xs text-red-300">{listening}</p>}
 
       {w.exercises.map((e, ei) => (
-        <ExCard key={`${e.key}-${ei}`} experience={profile.experience} e={e} x={idx.get(e.key, e.name)} prev={prev[e.key] ?? []}
+        <ExCard key={`${e.key}-${ei}`} experience={profile.experience} e={e} x={idx.get(e.key, e.name)} prev={prev[e.key] ?? []} seen={seen[e.key] ?? []}
           ss={ss.get(ei)} canLink={ei < w.exercises.length - 1}
           onSuperset={() => save(toggleSuperset(w.exercises, ei))} onWarmups={() => addWarmups(ei)}
           onPlates={(wt) => setPlates(wt)}
@@ -288,12 +342,12 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
         <Btn variant="danger" onClick={() => confirm('Discard this workout?') && deleteWithUndo(db.workouts, w.id, 'Workout discarded')}>Discard</Btn>
       </div>
 
-      <ExercisePicker open={picker} onClose={() => setPicker(false)} idx={idx} onPick={async (x) => { setPicker(false); save([...w.exercises, await buildExercise(x, undefined, w.id)]) }} />
+      <ExercisePicker open={picker} onClose={() => setPicker(false)} idx={idx} onPick={async (x) => { setPicker(false); save([...w.exercises, await buildExercise(x, undefined, w.id, undefined, w.date)]) }} />
       <ExercisePicker open={swap !== null} onClose={() => setSwap(null)} idx={idx} title="Swap exercise" muscle={swap !== null ? idx.get(w.exercises[swap].key, w.exercises[swap].name).primary : undefined}
         onPick={async (x) => {
           if (swap === null) return
           const old = w.exercises[swap]
-          const ne = await buildExercise(x, old.target, w.id, old.note)
+          const ne = await buildExercise(x, old.target, w.id, old.note, w.date)
           save(w.exercises.map((q, i) => (i === swap ? ne : q)))
           setSwap(null)
         }} />
@@ -323,8 +377,8 @@ function Active({ w, idx, onDone }: { w: Workout & { id: number }; idx: ExIndex;
   )
 }
 
-function ExCard({ experience, e, x, prev, ss, canLink, onSuperset, onWarmups, onPlates, onPatch, onToggle, onAddSet, onRemoveSet, onRemove, onSwap, onNote }: {
-  experience: string; e: WEx; x: Exercise; prev: WSet[]
+function ExCard({ experience, e, x, prev, seen, ss, canLink, onSuperset, onWarmups, onPlates, onPatch, onToggle, onAddSet, onRemoveSet, onRemove, onSwap, onNote }: {
+  experience: string; e: WEx; x: Exercise; prev: WSet[]; seen: number[]
   ss?: { label: string; linkedNext: boolean; linkedPrev: boolean }; canLink: boolean
   onSuperset: () => void; onWarmups: () => void; onPlates: (w: number | null) => void
   onPatch: (si: number, p: Partial<WSet>) => void; onToggle: (si: number) => void; onAddSet: (t: SetType) => void
@@ -338,7 +392,7 @@ function ExCard({ experience, e, x, prev, ss, canLink, onSuperset, onWarmups, on
   const cols = `1.75rem repeat(${fields.length}, minmax(0,1fr)) 2.75rem`
   const lastTop = prev.length ? prev.reduce((a, s) => ((s.weightKg ?? 0) > (a.weightKg ?? 0) ? s : a), prev[0]) : null
   // double-progression hint: if every previous set reached the top of the range, suggest more load
-  const hint = suggestNext(prev, t, x, experience)?.text ?? null
+  const hint = suggestNext(prev, t, x, experience, seen)?.text ?? null
   let wn = 0
 
   return (
@@ -527,8 +581,21 @@ function Library({ idx }: { idx: ExIndex }) {
 function Plan({ idx }: { idx: ExIndex }) {
   const routines = useLiveQuery(() => db.routines.toArray(), []) ?? []
   const [open, setOpen] = useState<string | null>(null)
+  const [adding, setAdding] = useState<{ rid: number; di: number } | null>(null)
+  /** Change one day of a plan and save it; Undo puts the old days back. */
+  const edit = async (r: Routine, di: number, change: (d: PlanDay) => PlanDay, undo?: string) => {
+    const before = structuredClone(r.days)
+    await db.routines.update(r.id!, { days: r.days.map((d, i) => (i === di ? change(structuredClone(d)) : d)) })
+    if (undo) offerUndo(undo, () => db.routines.update(r.id!, { days: before }))
+  }
+  const num = (v: number | null, min: number) => Math.max(min, Math.round(v as number))
   return (
     <div className="space-y-3">
+      <ExercisePicker open={adding !== null} onClose={() => setAdding(null)} idx={idx} title="Add to this day" onPick={async (x) => {
+        const a = adding; setAdding(null); const r = routines.find((q) => q.id === a?.rid)
+        if (!a || !r) return
+        await edit(r, a.di, (d) => ({ ...d, exercises: [...d.exercises, { key: x.key, sets: 3, repMin: 8, repMax: 12, rir: '1–2', rest: x.category === 'compound' ? 120 : 90 }] }))
+      }} />
       {routines.map((r) => (
         <Card key={r.id} className="space-y-2">
           <div className="flex justify-between items-start gap-2">
@@ -541,17 +608,36 @@ function Plan({ idx }: { idx: ExIndex }) {
             return (
               <div key={k} className="rounded-xl bg-zinc-800/60">
                 <button className="w-full flex justify-between items-center px-3 py-2.5 text-left" onClick={() => setOpen(open === k ? null : k)}>
-                  <span><span className="font-medium text-sm">{d.name}</span><span className="block text-xs text-zinc-500">{d.weekdays.map((x) => WEEKDAYS[x]).join(', ')} · {d.focus}</span></span>
+                  <span><span className="font-medium text-sm">{d.name}</span><span className="block text-xs text-zinc-500">{d.weekdays.map((x) => WEEKDAYS[x]).join(', ') || 'no days set'}{d.focus ? ` · ${d.focus}` : ''} · {d.exercises.length} exercises</span></span>
                   <span className="text-zinc-500">{open === k ? '–' : '+'}</span>
                 </button>
                 {open === k && (
-                  <div className="px-3 pb-3 space-y-1.5">
+                  <div className="px-3 pb-3 space-y-2">
+                    <div className="flex gap-1">
+                      {WEEKDAYS.map((n, wd) => (
+                        <button key={wd} className={`flex-1 h-8 rounded-lg text-[11px] ${d.weekdays.includes(wd) ? 'bg-lime-400 text-black font-semibold' : 'bg-zinc-800 text-zinc-400'}`}
+                          onClick={() => edit(r, di, (x) => ({ ...x, weekdays: x.weekdays.includes(wd) ? x.weekdays.filter((q) => q !== wd) : [...x.weekdays, wd].sort() }))}>{n[0]}</button>
+                      ))}
+                    </div>
                     {d.exercises.map((p, i) => (
-                      <div key={i} className="text-sm flex justify-between gap-2">
-                        <span>{idx.get(p.key).name}</span>
-                        <span className="text-zinc-500 whitespace-nowrap">{p.sets}×{p.repMin}–{p.repMax}</span>
+                      <div key={`${p.key}-${i}`} className="rounded-lg bg-zinc-900/60 p-2 space-y-1.5">
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="text-sm min-w-0 truncate">{idx.get(p.key).name}</span>
+                          <span className="flex shrink-0">
+                            <button className="h-8 w-8 text-zinc-400 disabled:opacity-30" disabled={i === 0} onClick={() => edit(r, di, (x) => { const e = x.exercises; [e[i - 1], e[i]] = [e[i], e[i - 1]]; return x })}>↑</button>
+                            <button className="h-8 w-8 text-zinc-400 disabled:opacity-30" disabled={i === d.exercises.length - 1} onClick={() => edit(r, di, (x) => { const e = x.exercises; [e[i + 1], e[i]] = [e[i], e[i + 1]]; return x })}>↓</button>
+                            <button className="h-8 w-8 text-red-400" onClick={() => edit(r, di, (x) => ({ ...x, exercises: x.exercises.filter((_, j) => j !== i) }), `Removed ${idx.get(p.key).name}`)}>✕</button>
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-1.5 text-[10px] text-zinc-500">
+                          <label>Sets<NumInput value={p.sets} className="!px-2 text-center" onChange={(v) => v !== null && edit(r, di, (x) => { x.exercises[i].sets = num(v, 1); return x })} /></label>
+                          <label>Min reps<NumInput value={p.repMin} className="!px-2 text-center" onChange={(v) => v !== null && edit(r, di, (x) => { const e = x.exercises[i]; e.repMin = num(v, 1); e.repMax = Math.max(e.repMax, e.repMin); return x })} /></label>
+                          <label>Max reps<NumInput value={p.repMax} className="!px-2 text-center" onChange={(v) => v !== null && edit(r, di, (x) => { const e = x.exercises[i]; e.repMax = Math.max(e.repMin, num(v, 1)); return x })} /></label>
+                          <label>Rest s<NumInput value={p.rest} className="!px-2 text-center" onChange={(v) => v !== null && edit(r, di, (x) => { x.exercises[i].rest = num(v, 0); return x })} /></label>
+                        </div>
                       </div>
                     ))}
+                    <Btn variant="ghost" className="w-full h-9" onClick={() => setAdding({ rid: r.id!, di })}>+ Add exercise</Btn>
                   </div>
                 )}
               </div>
@@ -592,7 +678,7 @@ function History({ idx, onOpen }: { idx: ExIndex; onOpen: (id: number) => void }
   )
 }
 
-function Summary({ id, idx, onClose }: { id: number; idx: ExIndex; onClose: () => void }) {
+function Summary({ id, idx, onClose, onEdit }: { id: number; idx: ExIndex; onClose: () => void; onEdit: () => void }) {
   const all = useLiveQuery(() => db.workouts.toArray(), [])
   const weights = useLiveQuery(() => db.bodyWeight.toArray(), []) ?? []
   const w = all?.find((x) => x.id === id)
@@ -631,6 +717,10 @@ function Summary({ id, idx, onClose }: { id: number; idx: ExIndex; onClose: () =
           <Field label="Notes"><TextInput value={w.notes ?? ''} onCommit={(v) => db.workouts.update(id, { notes: v })} placeholder="How did it go?" /></Field>
         </div>
         <div className="flex gap-2">
+          <Btn variant="ghost" onClick={async () => {
+            if (await db.workouts.filter((x) => !x.finishedAt && x.id !== id).count()) { alert('Finish or discard the workout you have open first.'); return }
+            await db.workouts.update(id, { finishedAt: undefined, minutes: workoutMinutes(w) || 60 }); onEdit()
+          }}>Edit</Btn>
           <Btn className="flex-1" onClick={onClose}>Done</Btn>
           <Btn variant="danger" onClick={() => { if (!confirmed.current && confirm('Delete this workout?')) { confirmed.current = true; deleteWithUndo(db.workouts, id, 'Workout deleted'); onClose() } }}>Delete</Btn>
         </div>

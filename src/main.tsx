@@ -6,6 +6,8 @@ import './index.css'
 import { startAutoSync } from './lib/sync'
 
 startAutoSync()
+// Ask the browser to keep this site's data. Without it, a phone can clear IndexedDB (custom foods, exercises, photos) when it is short of space or the site is unused for a while.
+void navigator.storage?.persist?.().catch(() => undefined)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

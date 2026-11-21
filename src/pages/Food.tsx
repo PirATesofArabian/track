@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, type FoodEntry } from '../lib/db'
+import { db, type CustomFood, type FoodEntry } from '../lib/db'
 import { useSettings } from '../lib/hooks'
 import { customToItem, defaultAmountFor, formatAmount, gramsPerUnit, loadFoods, nutrients, searchFoods, unitLabel, type FoodItem, type Rich, type Size, type Unit } from '../data/foodDb'
 import { Bar, Btn, Card, Chips, Empty, Sheet, inputCls } from '../lib/ui'
@@ -119,6 +119,8 @@ function AddFood({ meal, date, onClose }: { meal: FoodEntry['meal']; date: strin
   const [rich, setRich] = useState<Rich>('normal')
   const [mealSel, setMealSel] = useState(meal)
   const [custom, setCustom] = useState(false)
+  const [editing, setEditing] = useState<CustomFood | null>(null)
+  const [tab, setTab] = useState<'all' | 'mine'>('all')
   const customs = useLiveQuery(() => db.customFoods.toArray(), []) ?? []
   const allLogs = useLiveQuery(() => db.foodLog.toArray(), []) ?? []
   const quick = useMemo(() => quickFoods(allLogs, meal, date), [allLogs, meal, date])
@@ -127,6 +129,13 @@ function AddFood({ meal, date, onClose }: { meal: FoodEntry['meal']; date: strin
   useEffect(() => { loadFoods().then(setFoods) }, [])
 
   const results = useMemo(() => searchFoods([...customs.map(toItem), ...foods], q), [q, foods, customs])
+  // My foods: only the foods you created, the ones you log most first; typing narrows the list by name.
+  const mine = useMemo(() => {
+    const used = new Map<string, number>()
+    for (const e of allLogs) if (e.foodId) used.set(e.foodId, (used.get(e.foodId) ?? 0) + 1)
+    const w = q.trim().toLowerCase()
+    return customs.map(toItem).filter((f) => !w || f.name.toLowerCase().includes(w)).sort((a, b) => (used.get(b.id) ?? 0) - (used.get(a.id) ?? 0) || a.name.localeCompare(b.name))
+  }, [customs, allLogs, q])
 
   function pick(f: FoodItem) {
     const u = f.units[0]
@@ -150,9 +159,9 @@ function AddFood({ meal, date, onClose }: { meal: FoodEntry['meal']; date: strin
   }
 
   return (
-    <Sheet open onClose={onClose} title={picked ? picked.name : custom ? 'Custom food' : `Add to ${meal}`}>
-      {custom ? (
-        <CustomForm onDone={() => setCustom(false)} initialName={q} />
+    <Sheet open onClose={onClose} title={picked ? picked.name : editing ? 'Edit food' : custom ? 'Custom food' : `Add to ${meal}`}>
+      {custom || editing ? (
+        <CustomForm onDone={() => { setCustom(false); setEditing(null) }} initialName={q} existing={editing ?? undefined} usedIn={editing ? allLogs.filter((e) => e.foodId === `custom-${editing.id}`).length : 0} />
       ) : picked ? (
         <div className="space-y-3">
           <div className="flex gap-2 flex-wrap">
@@ -197,8 +206,19 @@ function AddFood({ meal, date, onClose }: { meal: FoodEntry['meal']; date: strin
         </div>
       ) : (
         <div className="space-y-2">
-          <input autoFocus className={inputCls} placeholder={foods.length ? 'Search: dosa, paneer, dal…' : 'Loading foods…'} value={q} onChange={(e) => setQ(e.target.value)} />
-          {!q && (quick.recent.length > 0 || quick.usual.length > 0) && (
+          <Chips value={tab} onChange={setTab} options={[{ v: 'all', label: 'All foods' }, { v: 'mine', label: `My foods${customs.length ? ` (${customs.length})` : ''}` }]} />
+          <input autoFocus className={inputCls} placeholder={tab === 'mine' ? 'Search my foods…' : foods.length ? 'Search: dosa, paneer, dal…' : 'Loading foods…'} value={q} onChange={(e) => setQ(e.target.value)} />
+          {tab === 'mine' && mine.map((f) => (
+            <div key={f.id} className="flex items-center gap-2 border-b border-zinc-800">
+              <button onClick={() => pick(f)} className="flex-1 min-w-0 text-left py-2.5 flex justify-between gap-3">
+                <span><span className="block text-sm">{f.name}</span><span className="text-xs text-zinc-500">per serving · P {round1(f.per100.p)} · C {round1(f.per100.c)} · F {round1(f.per100.f)}{f.per100.fib ? ` · fibre ${round1(f.per100.fib)}` : ''}</span></span>
+                <span className="text-sm tabular-nums text-zinc-300 whitespace-nowrap">{round0(f.per100.kcal)} kcal</span>
+              </button>
+              <button className="text-xs text-lime-400 h-9 px-2 shrink-0" onClick={() => setEditing(customs.find((c) => `custom-${c.id}` === f.id) ?? null)}>Edit</button>
+            </div>
+          ))}
+          {tab === 'mine' && !mine.length && <Empty>{customs.length ? 'No match in your foods.' : 'You have not made any foods yet. Use + Custom food below.'}</Empty>}
+          {tab === 'all' && !q && (quick.recent.length > 0 || quick.usual.length > 0) && (
             <div className="space-y-1.5 pb-1">
               {quick.usual.length > 0 && <p className="text-xs text-zinc-500">Often · tap to log again</p>}
               <div className="flex flex-wrap gap-1.5">{quick.usual.map(({ log, days }) => <button key={log.id} onClick={() => again(log)} className="px-3 h-8 rounded-full bg-lime-400/15 text-lime-300 text-xs">{log.name} · {days}d</button>)}</div>
@@ -206,13 +226,13 @@ function AddFood({ meal, date, onClose }: { meal: FoodEntry['meal']; date: strin
               <div className="flex flex-wrap gap-1.5">{quick.recent.map((log) => <button key={log.id} onClick={() => again(log)} className="px-3 h-8 rounded-full bg-zinc-800 text-xs">{log.name}</button>)}</div>
             </div>
           )}
-          {results.map((f) => (
+          {tab === 'all' && results.map((f) => (
             <button key={f.id} onClick={() => pick(f)} className="w-full text-left py-2.5 border-b border-zinc-800 flex justify-between gap-3">
               <span><span className="block text-sm">{f.name}</span><span className="text-xs text-zinc-500">{f.custom ? 'custom' : f.id.split('-')[0] === 'usda' ? 'USDA · per 100 g' : f.id.startsWith('indb') ? 'INDB · per 100 g' : f.units.join(' / ')}</span></span>
               <span className="text-sm tabular-nums text-zinc-300 whitespace-nowrap">{round0(f.per100.kcal)} /100g</span>
             </button>
           ))}
-          {q && foods.length > 0 && !results.length && <Empty>No match.</Empty>}
+          {tab === 'all' && q && foods.length > 0 && !results.length && <Empty>No match.</Empty>}
           <Btn variant="ghost" className="w-full" onClick={() => setCustom(true)}>+ Custom food</Btn>
         </div>
       )}
@@ -220,9 +240,9 @@ function AddFood({ meal, date, onClose }: { meal: FoodEntry['meal']; date: strin
   )
 }
 
-function CustomForm({ onDone, initialName }: { onDone: () => void; initialName: string }) {
-  const [f, setF] = useState({ name: initialName, serving: '1 serving', kcal: 0, p: 0, c: 0, f: 0 })
-  const num = (k: 'kcal' | 'p' | 'c' | 'f', label: string) => (
+function CustomForm({ onDone, initialName, existing, usedIn = 0 }: { onDone: () => void; initialName: string; existing?: CustomFood; usedIn?: number }) {
+  const [f, setF] = useState({ name: existing?.name ?? initialName, serving: existing?.serving ?? '1 serving', kcal: existing?.kcal ?? 0, p: existing?.p ?? 0, c: existing?.c ?? 0, f: existing?.f ?? 0, fib: existing?.fib ?? 0 })
+  const num = (k: 'kcal' | 'p' | 'c' | 'f' | 'fib', label: string) => (
     <label className="text-xs text-zinc-400 space-y-1 block">{label}
       <input type="number" inputMode="decimal" className={inputCls} value={f[k] || ''} onChange={(e) => setF({ ...f, [k]: +e.target.value })} />
     </label>
@@ -231,11 +251,18 @@ function CustomForm({ onDone, initialName }: { onDone: () => void; initialName: 
     <div className="space-y-3">
       <input className={inputCls} placeholder="Name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
       <input className={inputCls} placeholder="Serving (e.g. 1 bowl, 100 g)" value={f.serving} onChange={(e) => setF({ ...f, serving: e.target.value })} />
-      <div className="grid grid-cols-2 gap-2">{num('kcal', 'Calories')}{num('p', 'Protein g')}{num('c', 'Carbs g')}{num('f', 'Fat g')}</div>
+      <div className="grid grid-cols-2 gap-2">{num('kcal', 'Calories')}{num('p', 'Protein g')}{num('c', 'Carbs g')}{num('f', 'Fat g')}{num('fib', 'Fibre g (optional)')}</div>
+      {existing && <p className="text-xs text-zinc-500">Changes apply to foods you log from now on. Meals you already logged keep the numbers they had.</p>}
       <div className="flex gap-2">
-        <Btn className="flex-1" disabled={!f.name.trim() || !f.kcal} onClick={async () => { await db.customFoods.add(f); onDone() }}>Save</Btn>
+        <Btn className="flex-1" disabled={!f.name.trim() || !f.kcal} onClick={async () => { const rec = { ...f, name: f.name.trim() }; if (existing?.id !== undefined) await db.customFoods.update(existing.id, rec); else await db.customFoods.add(rec); onDone() }}>Save</Btn>
         <Btn variant="ghost" onClick={onDone}>Cancel</Btn>
       </div>
+      {existing?.id !== undefined && (
+        <div className="space-y-1">
+          <Btn variant="danger" className="w-full" onClick={async () => { const id = existing.id!, name = existing.name; onDone(); await deleteWithUndo(db.customFoods, id, `Deleted ${name}`) }}>Delete this food</Btn>
+          <p className="text-xs text-zinc-500">{usedIn ? `You logged it ${usedIn} time${usedIn === 1 ? '' : 's'}. Those meals stay as they are. ` : ''}It is removed from your foods and from your other devices. You can undo it for a few seconds.</p>
+        </div>
+      )}
     </div>
   )
 }

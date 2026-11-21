@@ -242,7 +242,7 @@ class T(unittest.TestCase):
             {'cursor': 'x', 'changes': []},
             {'cursor': 0, 'changes': 'no'},
             {'cursor': 0, 'changes': [self.rec('a', now, tbl='users')]},
-            {'cursor': 0, 'changes': [self.rec('a', now, tbl='photos')]},
+            {'cursor': 0, 'changes': [self.rec('a', now, tbl='syncTombstones')]},
             {'cursor': 0, 'changes': [{'uid': '', 'tbl': 'workouts', 'data': {}, 'updatedAt': now}]},
             {'cursor': 0, 'changes': [{'uid': 'a', 'tbl': 'workouts', 'data': 'str', 'updatedAt': now}]},
             {'cursor': 0, 'changes': [{'uid': 'a', 'tbl': 'workouts', 'data': {}, 'updatedAt': 'now'}]},
@@ -255,6 +255,60 @@ class T(unittest.TestCase):
         # one bad record rejects the whole batch: nothing is half-applied
         self.call('POST', '/api/sync', {'cursor': 0, 'changes': [self.rec('ok', now), self.rec('bad', now, tbl='nope')]}, token=t)
         self.assertEqual(self.sync(t, cursor=0)['changes'], [])
+
+    def put(self, name, data, token=None):
+        c = http.client.HTTPConnection('127.0.0.1', self.port, timeout=10)
+        c.request('PUT', '/api/photo/' + name, data, {'Authorization': 'Bearer ' + token} if token else {})
+        r = c.getresponse()
+        body = json.loads(r.read())
+        c.close()
+        return r.status, body
+
+    def get_photo(self, name, token=None):
+        c = http.client.HTTPConnection('127.0.0.1', self.port, timeout=10)
+        c.request('GET', '/api/photo/' + name, headers={'Authorization': 'Bearer ' + token} if token else {})
+        r = c.getresponse()
+        body = r.read()
+        c.close()
+        return r.status, body
+
+    def test_photos(self):
+        a, b = self.token('ph1'), self.token('ph2')
+        jpg = b'\xff\xd8\xff\xe0' + b'x' * 1000
+        self.assertEqual(self.put('abc123', jpg)[0], 401)  # not signed in
+        self.assertEqual(self.put('abc123', jpg, a), (200, {'ok': True, 'existed': False}))
+        self.assertEqual(self.put('abc123', b'\xff\xd8\xff\xe0' + b'y' * 10, a), (200, {'ok': True, 'existed': True}))  # same name: kept as it was
+        self.assertEqual(self.get_photo('abc123', a), (200, jpg))
+        self.assertEqual(self.get_photo('abc123')[0], 401)
+        self.assertEqual(self.get_photo('abc123', b)[0], 404)  # another account cannot see it
+        self.assertEqual(self.put('abc123', jpg, b)[0], 200)  # and the same name there is its own file
+        self.assertEqual(self.put('notjpg', b'GIF89a....', a)[0], 400)
+        self.assertEqual(self.put('..%2f..%2fx', jpg, a)[0], 404)
+        self.assertEqual(self.put('a.b', jpg, a)[0], 404)
+        self.assertEqual(self.get_photo('..%2fapp.db', a)[0], 404)
+        # the record syncs like any other; deleting it removes the file
+        now = int(time.time() * 1000)
+        self.assertEqual(self.sync(a, [self.rec('abc123', now - 50, tbl='photos', date='2026-01-01', pose='front')])['accepted'], ['abc123'])
+        self.assertEqual(self.get_photo('abc123', a)[0], 200)
+        d = self.call('POST', '/api/sync', {'cursor': 0, 'changes': [{'uid': 'abc123', 'tbl': 'photos', 'data': None, 'updatedAt': now, 'deleted': True}]}, token=a)[1]
+        self.assertEqual(d['accepted'], ['abc123'])
+        self.assertEqual(self.get_photo('abc123', a)[0], 404)
+        self.assertEqual(self.get_photo('abc123', b)[0], 200)  # b's own copy is untouched
+
+    def test_photo_limits(self):
+        t = self.token('ph3')
+        old = server.MAX_PHOTO, server.PHOTO_QUOTA
+        try:
+            server.MAX_PHOTO, server.PHOTO_QUOTA = 2000, 2500
+            jpg = b'\xff\xd8\xff' + b'x' * 1200
+            self.assertEqual(self.put('one', jpg, t)[0], 200)
+            self.assertEqual(self.put('two', b'\xff\xd8\xff' + b'x' * 3000, t)[0], 413)  # a single photo too large
+            self.assertEqual(self.put('two', jpg, t)[0], 200)
+            s, body = self.put('three', jpg, t)  # past the account's quota
+            self.assertEqual(s, 413)
+            self.assertIn('full', body['error'])
+        finally:
+            server.MAX_PHOTO, server.PHOTO_QUOTA = old
 
     def test_zz_throttle(self):
         for _ in range(server.MAX_FAILS):

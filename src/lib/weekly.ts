@@ -144,6 +144,7 @@ export function buildWeeklyReport(r: WeeklyInput): WeeklyReport {
   for (const x of wSorted) wByDay.set(x.date, x.kg)
   const weighIns = days7.filter((d) => wByDay.has(d))
   const L = (from: string) => { const v = Array.from({ length: 7 }, (_, i) => shiftDate(from, i)).filter((d) => wByDay.has(d)); return v.length >= 3 ? mean(v.map((d) => wByDay.get(d)!)) : null }
+  const cnt = (from: string) => Array.from({ length: 7 }, (_, i) => shiftDate(from, i)).filter((d) => wByDay.has(d)).length
   const R = L(a) ?? (wSorted.length ? wSorted[wSorted.length - 1].kg : null)
 
   const enough = { training: week.length >= 2, food: logged.length >= 3 }
@@ -308,7 +309,7 @@ export function buildWeeklyReport(r: WeeklyInput): WeeklyReport {
     add({ id: 'training-carbs', title: 'Move some carbs to your training days', titleHi: 'Training wale din carbs thode badhao', detail: `Training days were at ${q.carbsTraining} g per kg. Shift carbs from rest days so the total calories stay the same.`, checkText: 'Training day carbs at 4 g per kg or more.', check: { kind: 'trainingCarbs', minGPerKg: 4 } })
 
   const lastWeek = r.previousActions?.length ? r.previousActions.map((x) => gradeAction(x, { week, D, logged, pT, kT, weightNow: R, logs: r.logs, idx })) : null
-  const pillars = { training: pillarTraining(week.length, r.planned), nutrition: pillarNutrition(enough.food, pT, q?.proteinAvg ?? null, calorieDays, logged.length), body: pillarBody(K, r.fatLoss) }
+  const pillars = { training: pillarTraining(week.length, r.planned), nutrition: pillarNutrition(enough.food, pT, q?.proteinAvg ?? null, calorieDays, logged.length), body: pillarBody(K, r.fatLoss, cnt(a), cnt(shiftDate(a, -7))) }
   const verdict = verdictOf(pillars, actions)
 
   let win: WeeklyReport['win'] = null
@@ -423,8 +424,12 @@ function pillarNutrition(enough: boolean, pT: number | null, pAvg: number | null
   const pct = Math.round((pAvg / pT) * 100), d = `Protein ${pct}% of target`
   return pct >= 95 && (calDays === null || calDays >= Math.min(5, logged)) ? { status: 'good', label: 'On target', detail: d } : pct >= 85 ? { status: 'close', label: 'Close', detail: d } : { status: 'off', label: 'Off target', detail: d }
 }
-function pillarBody(k: WeeklyReport['body'], fatLoss: boolean): Pillar {
-  if (!k || k.ratePct === null || k.changeKg === null) return { status: 'none', label: 'Not enough weigh-ins', detail: 'Weigh in on 3 days a week' }
+function pillarBody(k: WeeklyReport['body'], fatLoss: boolean, thisWeek: number, lastWeek: number): Pillar {
+  if (!k || k.ratePct === null || k.changeKg === null) {
+    // The change needs 3 weigh-ins in this week and 3 in the week before it.
+    if (thisWeek >= 3 && lastWeek < 3) return { status: 'none', label: 'No week to compare yet', detail: `This week has ${thisWeek} weigh-ins${k?.weekMean != null ? ` (average ${k.weekMean} kg)` : ''}. Last week had ${lastWeek}, and it needs 3. The comparison starts next week.` }
+    return { status: 'none', label: 'Not enough weigh-ins', detail: `This week has ${thisWeek} and last week had ${lastWeek}. Each week needs 3 to compare.` }
+  }
   const down = k.ratePct < 0, r = Math.abs(k.ratePct)
   if (fatLoss) {
     const d = `Weight ${down ? 'down' : 'up'} ${r}% a week, goal 0.5 to 1%`

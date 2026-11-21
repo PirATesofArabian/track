@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { dataTables, db, type BodyWeight, type PhotoRec, type Routine, type Workout } from '../lib/db'
+import { dataTables, db, uniqueCustomIds, type BodyWeight, type PhotoRec, type Routine, type Workout } from '../lib/db'
 import { RegionsCard } from '../lib/regionsUi'
 import { MUSCLES, TRACKING_LABEL, cap, type Exercise } from '../data/exerciseDb'
 import { Bar, Btn, Card, Chart, Chips, Empty, Stat, inputCls } from '../lib/ui'
@@ -11,6 +11,8 @@ import { LEVELS, PR_LABEL, balance, currentBests, daysSinceMuscle, detectPRs, de
 import { download, fmtDuration, fmtInt, fmtKg, prettyDate, round0, round1, shiftDate, todayStr } from '../lib/util'
 import { setText } from '../lib/format'
 import { weightTrend } from '../lib/body'
+import DayView from './Day'
+import { restDatesOf } from '../lib/derived'
 import { adherence, bodyMassOn, deficitNow, frequency, loadRatio, realChange, relativeStrength, setRecords } from '../lib/science'
 import { ReportView } from './Review'
 import { PlanView } from './PlanView'
@@ -31,10 +33,10 @@ export default function ProgressPage() {
   const routines = useLiveQuery(() => db.routines.toArray(), []) ?? []
   const logs = useLiveQuery(() => db.foodLog.toArray(), []) ?? []
   const measurements = useLiveQuery(() => db.measurements.toArray(), []) ?? []
-  type Tab = 'overview' | 'week' | 'plan' | 'goals' | 'badges' | 'wrapped' | 'lifts' | 'records' | 'data'
+  type Tab = 'overview' | 'day' | 'week' | 'plan' | 'goals' | 'badges' | 'wrapped' | 'lifts' | 'records' | 'data'
   const [sp] = useSearchParams()
   const want = sp.get('tab') as Tab | null
-  const [tab, setTab] = useState<Tab>(want && ['week', 'plan', 'goals', 'badges', 'wrapped', 'data'].includes(want) ? want : 'overview')
+  const [tab, setTab] = useState<Tab>(want && ['day', 'week', 'plan', 'goals', 'badges', 'wrapped', 'data'].includes(want) ? want : 'overview')
   const today = todayStr()
   const done = useMemo(() => finished(workouts), [workouts])
   const map = useMemo(() => sessionsByExercise(workouts, idx), [workouts, idx])
@@ -42,8 +44,9 @@ export default function ProgressPage() {
 
   return (
     <div className="space-y-4">
-      <Chips value={tab} onChange={setTab} options={[{ v: 'overview', label: 'Overview' }, { v: 'week', label: 'Week' }, { v: 'plan', label: 'Plan' }, { v: 'goals', label: 'Goals' }, { v: 'badges', label: 'Badges' }, { v: 'wrapped', label: 'Wrapped' }, { v: 'lifts', label: 'Lifts' }, { v: 'records', label: `Records${prs.length ? ` (${prs.length})` : ''}` }, { v: 'data', label: 'Data' }]} />
+      <Chips value={tab} onChange={setTab} options={[{ v: 'overview', label: 'Overview' }, { v: 'day', label: 'Day' }, { v: 'week', label: 'Week' }, { v: 'plan', label: 'Plan' }, { v: 'goals', label: 'Goals' }, { v: 'badges', label: 'Badges' }, { v: 'wrapped', label: 'Wrapped' }, { v: 'lifts', label: 'Lifts' }, { v: 'records', label: `Records${prs.length ? ` (${prs.length})` : ''}` }, { v: 'data', label: 'Data' }]} />
       {tab === 'overview' && <Overview ws={workouts} done={done} idx={idx} map={map} today={today} bodyKg={weightTrend(weights).slice(-1)[0]?.trendKg ?? null} sex={profile.sex} experience={profile.experience} routines={routines} deficit={deficitNow({ profile, weights, measurements, logs, today })} />}
+      {tab === 'day' && <DayView />}
       {tab === 'week' && <ReportView />}
       {tab === 'plan' && <PlanView />}
       {tab === 'goals' && <GoalsView />}
@@ -58,6 +61,7 @@ export default function ProgressPage() {
 
 function Overview({ ws, done, idx, map, today, bodyKg, sex, experience, routines, deficit }: { ws: Workout[]; done: ReturnType<typeof finished>; idx: ReturnType<typeof useExerciseIndex>; map: ReturnType<typeof sessionsByExercise>; today: string; bodyKg: number | null; sex: string; experience: string; routines: Routine[]; deficit: boolean }) {
   const [days, setDays] = useState(7)
+  const kvAll = useLiveQuery(() => db.kv.toArray(), []) ?? []
   const from = days > 3650 ? '0000-01-01' : shiftDate(today, -(days - 1))
   const inRange = done.filter((w) => w.date >= from)
   const vol = inRange.reduce((a, w) => a + workoutVolume(w, idx), 0)
@@ -66,7 +70,7 @@ function Overview({ ws, done, idx, map, today, bodyKg, sex, experience, routines
   const bal = balance(ws, idx, today)
   const allStalls = detectStalls(ws, idx, today, experience, deficit)
   const stalls = allStalls.filter((s) => !s.holding), holding = allStalls.filter((s) => s.holding)
-  const freq = frequency(ws, today), adh = adherence(routines, ws, today), load = loadRatio(ws, today)
+  const freq = frequency(ws, today), adh = adherence(routines, ws, today, 4, restDatesOf(kvAll)), load = loadRatio(ws, today)
   const levels = strengthLevels(map, today, bodyKg, sex)
   const dots = dotsFromSessions(map, today, bodyKg, sex)
   const since = daysSinceMuscle(ws, idx, today).filter((m) => m.muscle !== 'cardio' && m.muscle !== 'adductors')
@@ -291,7 +295,7 @@ function AccountCard() {
       {acct ? (
         <>
           <p className="text-sm">Signed in as <b>{acct.username}</b>{acct.isAdmin ? ' (admin)' : ''} <span className="text-xs text-zinc-500">· {acct.server || 'this address'}</span></p>
-          <p className="text-xs text-zinc-500">Your data is kept on this device and synced to your server. If the same entry was changed on two devices, the later edit wins. Photos are not synced.</p>
+          <p className="text-xs text-zinc-500">Your data is kept on this device and synced to your server. If the same entry was changed on two devices, the later edit wins. Progress photos are sent to your server too, one file each.</p>
           <Btn className="w-full" disabled={sync.running} onClick={() => void syncNow()}>{sync.running ? 'Syncing…' : 'Sync now'}</Btn>
           <p className={`text-xs ${sync.error ? 'text-red-400' : 'text-zinc-500'}`}>{sync.error || `Last synced: ${when(sync.last || lastSynced())}${sync.last && !sync.running ? ` · sent ${sync.pushed}, received ${sync.pulled}` : ''}`}</p>
           {acct.isAdmin && (
@@ -342,6 +346,7 @@ function Data() {
     if (!confirm('This replaces everything currently stored on this device. Continue?')) return
     const before: Record<string, unknown[]> = {}
     for (const t of dataTables()) before[t.name] = await t.toArray()
+    uniqueCustomIds(d) // custom foods and exercises get ids no other device can have
     if (Array.isArray(d.photos)) d.photos = await Promise.all((d.photos as { blob: unknown }[]).map(async (p) => ({ ...p, blob: typeof p.blob === 'string' ? await urlToBlob(p.blob) : p.blob })))
     await db.transaction('rw', dataTables(), async () => {
       for (const t of dataTables()) { await t.clear(); const rows = d[t.name]; if (Array.isArray(rows)) await t.bulkAdd(rows) }

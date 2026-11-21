@@ -31,6 +31,19 @@ async function call(server: string, path: string, init?: RequestInit) {
 export const apiPost = (a: Account, path: string, body: object) =>
   call(a.server, path, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${a.token}` }, body: JSON.stringify(body) })
 
+/** Send a photo's JPEG; the server keeps it under this name (the photo's uid). Sending one it already has is fine. */
+export const uploadPhoto = (a: Account, name: string, blob: Blob) =>
+  call(a.server, `/api/photo/${name}`, { method: 'PUT', headers: { 'Content-Type': 'image/jpeg', Authorization: `Bearer ${a.token}` }, body: blob })
+
+/** A photo's JPEG from the server, or null if it has none by that name. */
+export async function downloadPhoto(a: Account, name: string): Promise<Blob | null> {
+  let r: Response
+  try { r = await fetch(`${clean(a.server)}/api/photo/${name}`, { headers: { Authorization: `Bearer ${a.token}` } }) } catch { throw new ApiError('Cannot reach the server. Check the address and that you are on the same network or Tailscale.', 0) }
+  if (r.status === 404) return null
+  if (!r.ok) throw new ApiError(((await r.json().catch(() => ({}))) as { error?: string }).error ?? `Server error ${r.status}`, r.status)
+  return await r.blob()
+}
+
 const post = (server: string, path: string, body: object) => call(server, path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, device: navigator.platform || 'browser' }) })
 
 /** mode 'register' creates the account (the server says so if the name is taken). */

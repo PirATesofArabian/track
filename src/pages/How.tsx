@@ -10,7 +10,7 @@ type Block =
   | { k: 'f'; t: string[] }
   | { k: 'table'; head: string[]; rows: string[][] }
   | { k: 'list'; t: string[] }
-type Tag = 'Ported' | 'Built' | 'Ported + Built'
+type Tag = 'Ported' | 'Built' | 'Ported + Built' | 'Estimate'
 type Section = { id: string; title: string; tag: Tag; file: string; blocks: Block[]; sources?: string }
 
 const SECTIONS: Section[] = [
@@ -138,16 +138,56 @@ const SECTIONS: Section[] = [
   {
     id: 'progression', title: 'Progression suggestions', tag: 'Built', file: 'lib/science.ts',
     blocks: [
-      { k: 'p', t: 'Double progression: fill the rep range, then add load. The logger only suggests; it never changes your routine.' },
-      { k: 'f', t: ['Next load = heaviest working set + 2.5 kg (5 kg for beginners on lower-body barbell lifts), reps back to the bottom of the range'] },
+      { k: 'p', t: 'Double progression: fill the rep range, then add load. The science page gives that core rule. The extra cases below (hold, step back, bigger jump, your own step size) are this app\'s own rules, not published ones. The logger only suggests; it never changes your routine.' },
+      { k: 'f', t: ['Next load = each working set\'s weight + one step, reps back to the bottom of the range', 'One step = the smallest jump you have made on that exercise (gaps of 1.25 to 10 kg between weights you logged), else 2.5 kg; 5 kg for beginners on lower-body barbell lifts'] },
       { k: 'list', t: [
-        'Every working set must reach the top of the range (the bottom of it for a beginner).',
-        'Logged RIR must be at or above the routine\'s target, with half a rep of slack because RIR is a guess.',
-        'Otherwise it tells you to add a rep on each set first.',
+        'Only working sets count. Warm-up, drop and back-off sets are left out.',
+        'Every working set at the top of the range (the bottom of it for a beginner), with RIR at or above the target less half a rep: add a step to every weight you used.',
+        'If all of those sets also had 2 or more reps left beyond the target, it takes two steps, but only when that is within 15% of your top weight.',
+        'RIR below the target less half a rep: keep the weight, whatever the reps, and stop a little earlier.',
+        'Half or more of the sets under the bottom of the range: one step off those sets, then build back up.',
+        'Anything else: keep the weight and add a rep to each set, up to the top of the range.',
+        'Bodyweight lifts: add reps, then make it harder. Assisted lifts: less help counts as heavier.',
         'RPE = 10 − RIR.',
       ] },
     ],
     sources: 'Plotkin et al. 2022; Zourdos et al. 2016',
+  },
+  {
+    id: 'day', title: 'Day summary and tomorrow', tag: 'Estimate', file: 'lib/daysummary.ts',
+    blocks: [
+      { k: 'p', t: 'The Day tab (Progress) puts one day next to your other days and says what to do tomorrow. These are this app\'s own rules, not published ones. They only suggest.' },
+      { k: 'list', t: [
+        'Usual = the average of your last 14 days that have that number. Days without food logged (under 1,000 kcal) are left out of food numbers; days without a workout are left out of training numbers.',
+        'Rank = where the day sits among the last 30 days with that number (needs at least 5).',
+        'Colour: fat above your limit is flagged; protein, water and steps are fine at 90% of target or more; calories and carbs within 10% of target.',
+        'Active calories burned = lifting estimate + cardio + steps estimate (the same estimates used elsewhere in the app).',
+        'Tomorrow\'s food: your targets stay as they are. Fat over: stay at or under the limit, nothing to make up. Protein under 90%: spread it across meals. Calories over 7% or under 15%: do not skip meals or catch up.',
+        'Tomorrow\'s lifts come from the routine day planned for that weekday, using the progression rules above, based on your last session of each lift.',
+        'A lift is "stalled" when its best estimated 1RM in the last 2 of 3 sessions is not at least 1% above the first. It then suggests one more set at the same weight before adding load, or a lighter week if you are tired.',
+      ] },
+      { k: 'p', t: 'The "lighter week when tired" idea comes from a weighted pull-up coach video you saved (a lighter week every 4 to 8 weeks, sooner with poor sleep or a plateau). That is one coach\'s opinion, not a study. The review you saved (Maximizing Muscle Hypertrophy, PMC) says progressive mechanical tension overload is a main driver of growth, and gives no rule for how much to add each week.' },
+    ],
+  },
+  {
+    id: 'weightwhy', title: 'Why did my weight change', tag: 'Estimate', file: 'lib/weightwhy.ts',
+    blocks: [
+      { k: 'p', t: 'On the Body tab you pick two weigh-ins (the two latest by default). The app looks at the days between them and what you logged on those days. These are this app\'s own rules.' },
+      { k: 'f', t: [
+        'Change = later weigh-in − earlier weigh-in',
+        'Calories explain = (average logged kcal a day − maintenance) × days ÷ 7,700',
+        'Water and gut = change − calories explain',
+        'Maintenance = your real maintenance from Food values if there are 14 logged days, else the calculated one',
+      ] },
+      { k: 'list', t: [
+        'Changes under 0.3 kg are called flat.',
+        'Under 7 days is never called fat. The science page says water and food in the gut move daily weight by a kilo or more.',
+        'The calorie part needs food logged on at least half the days between the two weigh-ins.',
+        'Reasons listed: calories 10% or more away from your usual of the 14 days before; carbs 15% or more away; 3 or more sessions, or 30% more sets than usual; steps 30% or more away.',
+        'The carbs-and-water link (more stored carbs, more water held) and hard training holding water are the assistant\'s explanation, not from a saved file.',
+      ] },
+      { k: 'p', t: 'The weekly report\'s weight change needs 3 weigh-ins in this week and 3 in the week before. That is why a week can say "not enough weigh-ins" when you weighed every day: the week before did not have 3.' },
+    ],
   },
   {
     id: 'consistency', title: 'Frequency, adherence, load and records', tag: 'Built', file: 'lib/science.ts',
@@ -434,7 +474,7 @@ export default function HowPage() {
           <div id={s.id} className="scroll-mt-4 space-y-1">
             <div className="flex items-start justify-between gap-2">
               <h2 className="text-base font-semibold">{s.title}</h2>
-              <span className={`shrink-0 text-[11px] px-2 py-0.5 rounded-full ${s.tag === 'Built' ? 'bg-sky-500/15 text-sky-300' : 'bg-lime-400/15 text-lime-300'}`}>{s.tag}</span>
+              <span className={`shrink-0 text-[11px] px-2 py-0.5 rounded-full ${s.tag === 'Built' ? 'bg-sky-500/15 text-sky-300' : s.tag === 'Estimate' ? 'bg-amber-400/15 text-amber-300' : 'bg-lime-400/15 text-lime-300'}`}>{s.tag}</span>
             </div>
             <p className="text-[11px] text-zinc-500">src/{s.file}</p>
           </div>

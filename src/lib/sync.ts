@@ -3,8 +3,8 @@
 // (tombstones), then pull whatever the server holds that is newer. The server keeps the higher updatedAt; ties keep what it has.
 import { useSyncExternalStore } from 'react'
 import type { IndexableType } from 'dexie'
-import { ApiError, apiPost, forgetAccount, getAccount, type Account } from './account'
-import { KEEP_ID, NATURAL_KEY, SYNC_TABLES, db, syncSignal, type Tombstone } from './db'
+import { ApiError, apiPost, downloadPhoto, forgetAccount, getAccount, uploadPhoto, type Account } from './account'
+import { KEEP_ID, NATURAL_KEY, SYNC_TABLES, bigId, db, syncSignal, type Tombstone } from './db'
 
 type Change = { uid: string; tbl: string; data: Record<string, unknown> | null; updatedAt: number; deleted: boolean }
 type Reply = { cursor: number; changes: Change[]; more: boolean }
@@ -32,6 +32,7 @@ export const lastSynced = (): number => { const a = getAccount(); return a ? loa
 const dataOf = (name: string, r: Record<string, unknown>) => {
   const { uid: _u, updatedAt: _t, ...data } = r
   if (!NATURAL_KEY[name] && !KEEP_ID.has(name)) delete data.id // local auto-increment ids mean nothing on another device
+  if (name === 'photos') delete data.blob // the image travels as a file (uploadPhoto), not inside the record
   return data
 }
 
@@ -54,9 +55,17 @@ async function collect(since: number): Promise<Change[]> {
 }
 
 /** Write what the server sent. Never counts as a local edit, and never overwrites a newer local row. */
-async function apply(changes: Change[]) {
+async function apply(changes: Change[], a: Account) {
   const known = changes.filter((c) => (SYNC_TABLES as readonly string[]).includes(c.tbl))
   if (!known.length) return
+  // Photo images are fetched first (a transaction cannot wait on the network). A photo whose image the server no longer has is skipped.
+  const images = new Map<string, Blob>()
+  for (const c of known) {
+    if (c.tbl !== 'photos' || c.deleted) continue
+    if ((await db.photos.where('uid').equals(c.uid).first())?.blob) continue
+    const b = await downloadPhoto(a, c.uid)
+    if (b) images.set(c.uid, b)
+  }
   await db.transaction('rw', [...SYNC_TABLES.map((n) => db.table(n)), db.syncTombstones], async (tx) => {
     ;(tx as unknown as { remote: boolean }).remote = true
     for (const c of known) {
@@ -68,7 +77,16 @@ async function apply(changes: Change[]) {
       if (tomb && tomb.updatedAt >= c.updatedAt) continue // deleted here, more recently than the server's copy
       if (c.deleted) { if (local) await t.delete((kp ? local[kp] : local.id) as IndexableType); continue }
       const row: Record<string, unknown> = { ...c.data, uid: c.uid, updatedAt: c.updatedAt }
+      if (c.tbl === 'photos') {
+        const blob = images.get(c.uid) ?? local?.blob
+        if (!blob) continue
+        row.blob = blob
+      }
       if (!kp && !KEEP_ID.has(c.tbl) && local) row.id = local.id
+      if (KEEP_ID.has(c.tbl)) { // a custom food or exercise whose id is already used here by a different record (made on an old device): keep both, give this one a new id
+        const same = (await t.get(row.id as IndexableType)) as Record<string, unknown> | undefined
+        if (same && same.uid !== c.uid) row.id = bigId()
+      }
       await t.put(row)
     }
   })
@@ -101,11 +119,19 @@ async function run() {
   const started = Date.now()
   let pushed = 0, pulled = 0
   try {
-    const mine = await collect(state.since)
+    let mine = await collect(state.since), refused = ''
+    for (const c of [...mine]) { // a photo's image goes up before its record, so another device never sees a record without an image
+      if (c.tbl !== 'photos' || c.deleted) continue
+      const row = await db.photos.where('uid').equals(c.uid).first()
+      try { if (row?.blob) await uploadPhoto(a, c.uid, row.blob) } catch (e) {
+        if (!(e instanceof ApiError) || e.status !== 413) throw e // offline or signed out: the whole sync retries
+        refused = e.message; mine = mine.filter((x) => x !== c) // storage full: leave this photo out, the rest still syncs
+      }
+    }
     for (const batch of batches(mine)) {
       let r = (await apiPost(a, '/api/sync', { cursor: state.cursor, changes: batch })) as unknown as Reply
       for (;;) {
-        await apply(r.changes); pulled += r.changes.length; state.cursor = r.cursor
+        await apply(r.changes, a); pulled += r.changes.length; state.cursor = r.cursor
         if (!r.more) break
         r = (await apiPost(a, '/api/sync', { cursor: state.cursor, changes: [] })) as unknown as Reply
       }
@@ -117,7 +143,7 @@ async function run() {
     await db.syncTombstones.bulkDelete(done)
     state.since = started; state.last = Date.now()
     save(state)
-    setStatus({ running: false, last: state.last, pushed, pulled })
+    setStatus({ running: false, last: state.last, pushed, pulled, error: refused ? `A photo was not sent: ${refused}` : '' })
   } catch (e) {
     if (e instanceof ApiError && e.status === 401) { forgetAccount(); setStatus({ running: false, error: 'Your session ended. Sign in again.' }) }
     else setStatus({ running: false, error: (e as Error).message })

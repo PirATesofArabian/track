@@ -21,6 +21,7 @@ const post = async (path: string, body: object, token?: string) => {
   return { status: r.status, body: (await r.json()) as Record<string, any> }
 }
 
+let oldPhoto: any
 async function main() {
   for (let i = 0; i < 50; i++) { try { if ((await fetch(base + '/api/health')).ok) break } catch { /* not up yet */ } await sleep(100) }
   const reg = await post('/api/register', { username: 'tester', password: 'longenough1' })
@@ -120,12 +121,15 @@ async function main() {
   await old.table('customExercises').add({ name: 'Old move' })
   await old.table('workouts').add({ date: '2025-12-01', name: 'Legs', startedAt: 1, exercises: [{ key: 'custom:1', name: 'Old move', sets: [] }] })
   await old.table('water').put({ date: '2025-12-01', ml: 900 })
+  await old.table('photos').add({ date: '2025-12-01', pose: 'side', blob: new Blob([new Uint8Array([0xff, 0xd8, 0xff, 9])]) })
   old.close()
   await db.open()
   const up = (await db.customExercises.toArray())[0] as any
   assert.ok(up.id >= 1e9 && up.uid && up.updatedAt === 1)
   assert.equal(((await db.workouts.toArray())[0] as any).exercises[0].key, `custom:${up.id}`, 'references follow the new id')
   assert.equal(((await db.water.get('2025-12-01')) as any).uid, 'water:2025-12-01')
+  oldPhoto = (await db.photos.toArray())[0] as any
+  assert.ok(oldPhoto.uid && oldPhoto.updatedAt > 1e12, 'a photo taken before the upgrade is stamped now, so it still gets sent')
   ok('upgrade from schema 4 stamps rows and remaps custom ids')
 
   // 8. first sync of that upgraded device merges with what the server already has, without losing either side
@@ -141,6 +145,42 @@ async function main() {
   const { getAccount } = await import('../src/lib/account')
   assert.equal(getAccount(), null)
   ok('an ended session is dropped cleanly')
+
+  // 10. photos: the record syncs, the image is a file on the server, a fresh device gets it back, a delete removes it
+  localStorage.setItem('tracker-account', JSON.stringify({ server: base, token: reg.body.token, username: 'tester', expiresAt: reg.body.expiresAt })) // step 9 signed out
+  await db.photos.clear(); await db.syncTombstones.clear()
+  const jpg = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4, 5])], { type: 'image/jpeg' })
+  const pid = (await db.photos.add({ date: '2026-02-01', pose: 'front', blob: jpg })) as number
+  const photo = (await db.photos.get(pid)) as any
+  assert.ok(photo.uid && photo.updatedAt > 1e12)
+  await syncNow()
+  const rec = (await raw(0)).changes.find((c) => c.uid === photo.uid)
+  assert.deepEqual(rec.data, { date: '2026-02-01', pose: 'front' }, 'the record carries no image and no local id')
+  const served = await fetch(`${base}/api/photo/${photo.uid}`, { headers: { Authorization: `Bearer ${reg.body.token}` } })
+  assert.equal(served.status, 200)
+  assert.deepEqual([...new Uint8Array(await served.arrayBuffer())], [0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4, 5])
+  assert.equal((await fetch(`${base}/api/photo/${photo.uid}`)).status, 401, 'not readable without signing in')
+  ok('a photo record syncs and its image is stored on the server')
+
+  db.close(); await db.delete(); await db.open(); localStorage.removeItem('tracker-sync')
+  await syncNow()
+  const back = (await db.photos.toArray()) as any[]
+  assert.equal(back.length, 2, 'the new photo, and the one taken before the schema upgrade (sent by step 8)')
+  const got = back.find((p) => p.uid === photo.uid)
+  assert.equal(got.pose, 'front')
+  assert.deepEqual([...new Uint8Array(await new Response(got.blob).arrayBuffer())], [0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4, 5])
+  assert.equal(back.find((p) => p.uid === oldPhoto.uid).pose, 'side', 'a photo taken before the upgrade reached the server too')
+  const afterPull = (await raw(0)).changes.find((c) => c.uid === photo.uid).updatedAt
+  await syncNow()
+  assert.equal((await raw(0)).changes.find((c) => c.uid === photo.uid).updatedAt, afterPull, 'a pulled photo is not sent back as a new edit')
+  ok('a new device gets the photo back, image included')
+
+  await db.photos.delete(got.id)
+  await syncNow()
+  assert.equal((await fetch(`${base}/api/photo/${photo.uid}`, { headers: { Authorization: `Bearer ${reg.body.token}` } })).status, 404, 'deleting the photo deletes the file')
+  assert.equal((await raw(0)).changes.find((c) => c.uid === photo.uid).deleted, true)
+  ok('deleting a photo removes its file from the server')
+
   console.log('\nALL PASSED')
 }
 

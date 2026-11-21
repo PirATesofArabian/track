@@ -29,8 +29,8 @@ export type FoodItem = {
 }
 
 /** A custom food is stored per serving; the app treats one serving as 100 g so the per-100 g values equal the serving's. */
-export const customToItem = (c: { id?: number; name: string; kcal: number; p: number; c: number; f: number }): FoodItem =>
-  ({ id: `custom-${c.id}`, name: c.name, per100: { kcal: c.kcal, p: c.p, c: c.c, f: c.f, fib: 0 }, units: ['serving'], servingG: 100, custom: true })
+export const customToItem = (c: { id?: number; name: string; kcal: number; p: number; c: number; f: number; fib?: number }): FoodItem =>
+  ({ id: `custom-${c.id}`, name: c.name, per100: { kcal: c.kcal, p: c.p, c: c.c, f: c.f, fib: c.fib ?? 0 }, units: ['serving'], servingG: 100, custom: true })
 
 let cache: Promise<FoodItem[]> | null = null
 

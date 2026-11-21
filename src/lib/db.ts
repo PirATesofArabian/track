@@ -29,6 +29,7 @@ export type Workout = {
   notes?: string
   sessionRpe?: number | null
   kcalBurned?: number | null
+  minutes?: number // set when the length is known or typed (past sessions); beats finishedAt − startedAt
 }
 
 export type FoodEntry = {
@@ -48,7 +49,7 @@ export type FoodEntry = {
   f: number
   fib?: number
 }
-export type CustomFood = { id?: number; name: string; serving: string; kcal: number; p: number; c: number; f: number }
+export type CustomFood = { id?: number; name: string; serving: string; kcal: number; p: number; c: number; f: number; fib?: number }
 export type CustomExercise = Omit<Exercise, 'key' | 'custom'> & { id?: number }
 
 export type PlanExercise = { key: string; sets: number; repMin: number; repMax: number; rir?: string; rest: number; cue?: string }
@@ -129,7 +130,7 @@ export type KV = { key: string; value: unknown }
 
 // ── Sync support (see sync.ts). Every synced row carries a global `uid` and an `updatedAt` edit time, stamped by the hooks below. ──
 export const SYNC_TABLES = ['workouts', 'foodLog', 'customFoods', 'customExercises', 'routines', 'bodyWeight', 'measurements', 'activity', 'goals', 'events', 'pain', 'memories', 'supplements',
-  'water', 'settings', 'profile', 'reports', 'kv', 'sleep'] as const
+  'water', 'settings', 'profile', 'reports', 'kv', 'sleep', 'photos'] as const
 /** Tables keyed by their own field: their uid is "table:key", so two devices agree on it without talking. */
 export const NATURAL_KEY: Record<string, string> = { water: 'date', settings: 'id', profile: 'id', reports: 'weekStart', kv: 'key', sleep: 'date' }
 /** Custom exercises and foods are referenced as custom:<id> / custom-<id>, so their ids must be unique across devices. */
@@ -137,7 +138,7 @@ export const KEEP_ID = new Set(['customExercises', 'customFoods'])
 export const syncSignal: { fn: (() => void) | null } = { fn: null }
 export type Tombstone = { uid: string; tbl: string; updatedAt: number }
 const rid = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, '0')).join('') // randomUUID needs https
-const bigId = () => Math.floor(1e9 + Math.random() * 9e12)
+export const bigId = () => Math.floor(1e9 + Math.random() * 9e12)
 
 class AppDB extends Dexie {
   workouts!: EntityTable<Workout, 'id'>
@@ -174,6 +175,9 @@ class AppDB extends Dexie {
       settings: 'id',
     }
     this.version(1).stores(v1)
+    // A brand-new local database has nothing yet, whatever sync last said: forget the position so the next sync pulls everything back.
+    // (If the browser empties IndexedDB but keeps localStorage, the old position would otherwise skip every record already on the server.)
+    this.on('populate', () => { try { localStorage.removeItem('tracker-sync') } catch { /* no storage */ } })
     this.version(2)
       .stores({ ...v1, customExercises: '++id', measurements: '++id, date', activity: '++id, date', profile: 'id' })
       .upgrade(async (tx) => {
@@ -212,7 +216,7 @@ class AppDB extends Dexie {
       })
       .upgrade(async (tx) => {
         ;(tx as unknown as { remote: boolean }).remote = true // not an edit: do not stamp "now"
-        for (const name of SYNC_TABLES) {
+        for (const name of SYNC_TABLES.filter((n) => n !== 'photos')) { // photos join sync in version 6
           const kp = NATURAL_KEY[name]
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await tx.table(name).toCollection().modify((r: any) => { if (r.uid) return; r.uid = kp ? `${name}:${r[kp]}` : rid(); r.updatedAt = 1 })
@@ -239,6 +243,15 @@ class AppDB extends Dexie {
             })
           }
         }
+      })
+    // Photos: the record (date, pose) syncs like the rest; the image is uploaded as a file named after the uid (sync.ts).
+    this.version(6)
+      .stores({ photos: '++id, date, uid, updatedAt' })
+      .upgrade(async (tx) => {
+        ;(tx as unknown as { remote: boolean }).remote = true
+        // Stamped "now", not 1: a device that has already synced would otherwise never send photos it took before this version.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await tx.table('photos').toCollection().modify((r: any) => { if (r.uid) return; r.uid = rid(); r.updatedAt = Date.now() })
       })
   }
 }
@@ -269,6 +282,34 @@ for (const name of SYNC_TABLES) {
     const rec: Tombstone = { uid: obj.uid, tbl: name, updatedAt: Date.now() }
     this.onsuccess = () => { syncSignal.fn?.(); Dexie.ignoreTransaction(() => db.syncTombstones.put(rec).catch(() => undefined)) }
   })
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+/**
+ * A backup holds custom foods and exercises under small ids (custom-1, custom:2). Two devices restoring or creating those would
+ * clash once synced, so give each a unique id and rewrite every reference to it. Changes `d` (the parsed backup) in place; returns how many were remapped.
+ */
+export function uniqueCustomIds(d: Record<string, unknown>): number {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const remap = new Map<string, string>()
+  for (const [name, pre] of [['customExercises', 'custom:'], ['customFoods', 'custom-']] as const) {
+    for (const r of (Array.isArray(d[name]) ? d[name] : []) as any[]) {
+      if (typeof r.id !== 'number' || r.id >= 1e9) continue
+      const nid = bigId()
+      remap.set(pre + r.id, pre + nid); r.id = nid
+    }
+  }
+  if (!remap.size) return 0
+  for (const name of ['workouts', 'routines', 'goals', 'pain', 'foodLog', 'kv']) {
+    const rows = d[name]
+    if (!Array.isArray(rows)) continue
+    rows.forEach((r, i) => {
+      const before = JSON.stringify(r)
+      const after = before.replace(/"(custom[:-]\d+)"/g, (m, k: string) => (remap.has(k) ? `"${remap.get(k)}"` : m))
+      if (after !== before) rows[i] = JSON.parse(after)
+    })
+  }
+  return remap.size
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 

@@ -9,7 +9,7 @@ import { bodySnapshot } from './body'
 import { MIN_LOGGED_KCAL, dayTotals, realMaintenance } from './foodinsights'
 import { mondayOfDate } from './adaptive'
 import { isWork, type Session } from './perf'
-import { daysBetween, shiftDate } from './util'
+import { daysBetween, fmtKg, shiftDate } from './util'
 
 // ───────── effort ─────────
 /** RPE equals 10 minus reps in reserve. */
@@ -54,22 +54,74 @@ export function realChange(list: Session[], weights: BodyWeight[], today: string
 // ───────── progression suggestion (double progression) ─────────
 const LOWER = new Set(['quads', 'hamstrings', 'glutes', 'adductors', 'calves'])
 const firstNumber = (s?: string) => { const m = s?.match(/\d+(\.\d+)?/); return m ? +m[0] : null }
-export type Suggestion = { kind: 'add_load'; kg: number; reps: number; text: string } | { kind: 'add_rep'; text: string }
+export type Suggestion =
+  | { kind: 'add_load'; kg: number; reps: number; text: string }
+  | { kind: 'add_rep' | 'hold' | 'lighter' | 'harder'; text: string }
+
+/** The smallest jump you have actually made on this exercise (gaps of 1.25 to 10 kg between weights you logged), else null. */
+export function observedStep(seen: number[]): number | null {
+  const u = [...new Set(seen.filter((w) => w > 0).map((w) => Math.round(w * 100) / 100))].sort((a, b) => a - b)
+  let best: number | null = null
+  for (let i = 1; i < u.length; i++) { const d = Math.round((u[i] - u[i - 1]) * 100) / 100; if (d >= 1.25 && d <= 10 && (best === null || d < best)) best = d }
+  return best
+}
+
 /**
- * Fill the rep range, then add load. Every working set must reach the top of the range (the bottom for a beginner), with logged
- * RIR at or above the target less half a rep. Next load = heaviest working set + 2.5 kg, or 5 kg for beginners on lower-body barbell lifts.
+ * Fill the rep range, then add load. This is the app's own rule set, built on the double-progression idea from the science page.
+ *  - Sets are judged on working sets only (warm-ups and drop sets are left out, and so is any set lighter than an earlier one: that is a back-off).
+ *  - Every working set at the top of the range (the bottom for a beginner), with logged RIR at or above the target less half a rep:
+ *    add one step to every weight you used. The step is the smallest jump you have made on this lift (else 2.5 kg, or 5 kg for beginners on
+ *    lower-body barbell lifts). If every set also had 2 or more reps in hand beyond the target, take two steps, as long as that is within 15% of the top weight.
+ *  - Logged RIR below the target less half a rep: hold the weight, whatever the reps.
+ *  - Half or more of the sets under the bottom of the range: take one step off those sets.
+ *  - Otherwise: keep the weight and add a rep to each set, up to the top of the range.
+ * Bodyweight lifts: add reps, then make it harder. Assisted lifts: less help is the "heavier" direction.
  */
-export function suggestNext(prev: WSet[], target: { repMin: number; repMax: number; rir?: string } | undefined, x: Exercise, experience: string): Suggestion | null {
-  if (!target?.repMax || x.tracking !== 'weight_reps') return null
-  const work = prev.filter((s) => isWork(s) && (s.weightKg ?? 0) > 0 && (s.reps ?? 0) > 0)
+export function suggestNext(prev: WSet[], target: { repMin: number; repMax: number; rir?: string } | undefined, x: Exercise, experience: string, seen: number[] = []): Suggestion | null {
+  const t = x.tracking
+  if (!target?.repMax || (t !== 'weight_reps' && t !== 'weighted_bodyweight' && t !== 'assisted_bodyweight' && t !== 'bodyweight_reps')) return null
+  const done = prev.filter((s) => isWork(s) && (s.reps ?? 0) > 0 && (t !== 'weight_reps' || (s.weightKg ?? 0) > 0))
+  const main = done.filter((s) => s.setType === 'working')
+  const base = main.length ? main : done
+  // A set lighter than an earlier set of the same exercise is a back-off or drop set, even if it was logged as a working set. Leave it out (keeping at least 2 sets).
+  const dir0 = t === 'assisted_bodyweight' ? -1 : 1
+  const kept = base.filter((s, i) => i === 0 || !base.slice(0, i).some((q) => dir0 * ((q.weightKg ?? 0) - (s.weightKg ?? 0)) > 0))
+  const work = t !== 'bodyweight_reps' && kept.length >= 2 ? kept : base
   if (!work.length) return null
+
+  const loaded = t !== 'bodyweight_reps', dir = t === 'assisted_bodyweight' ? -1 : 1, unit = x.loadMode === 'per_hand' ? '/hand' : ''
+  const wt = (s: WSet) => s.weightKg ?? 0, reps = work.map((s) => s.reps as number)
   const need = experience === 'beginner' ? target.repMin : target.repMax
   const tr = firstNumber(target.rir)
-  const effortOk = work.every((s) => s.rir === null || tr === null || s.rir >= tr - 0.5)
-  if (!work.every((s) => (s.reps ?? 0) >= need) || !effortOk) return { kind: 'add_rep', text: `Aim to add a rep on each set (${target.repMin}–${target.repMax}) before adding load.` }
-  const step = experience === 'beginner' && LOWER.has(x.primary) && x.equipment === 'barbell' ? 5 : 2.5
-  const top = Math.max(...work.map((s) => s.weightKg as number)), kg = Math.round((top + step) * 100) / 100
-  return { kind: 'add_load', kg, reps: target.repMin, text: `Every set reached ${need} reps. Next time try ${kg} kg for ${target.repMin} reps.` }
+  const lowerBarbell = experience === 'beginner' && LOWER.has(x.primary) && x.equipment === 'barbell'
+  const step = lowerBarbell ? 5 : observedStep(seen) ?? 2.5
+  const top = Math.max(...work.map(wt))
+  const label = (ws: number[]) => {
+    const u = ws.filter((w, i) => ws.indexOf(w) === i).map(fmtKg).join(' · ')
+    return t === 'weighted_bodyweight' ? `+${u} kg${unit}` : t === 'assisted_bodyweight' ? `${u} kg of assistance` : `${u} kg${unit}`
+  }
+  const move = (w: number, n: number) => Math.max(0, Math.round((w + dir * step * n) * 100) / 100)
+  const rirs = work.map((s) => s.rir).filter((r): r is number => r !== null)
+  const hardest = rirs.length ? Math.min(...rirs) : null
+  const range = `${target.repMin}–${target.repMax}`
+  const keep = loaded ? ` Keep ${label(work.map(wt))}.` : ''
+
+  const under = work.filter((s) => (s.reps ?? 0) < target.repMin)
+  if (under.length * 2 >= work.length) {
+    if (!loaded) return { kind: 'add_rep', text: `Last time ${under.length === 1 ? 'a set' : 'sets'} fell under ${target.repMin} reps. Get every set to ${target.repMin} before anything else.` }
+    return { kind: 'lighter', text: `${under.length === 1 ? 'A set' : `${under.length} sets`} fell under ${target.repMin} reps, so the load is a bit heavy. Take one step off: ${label(work.map((s) => ((s.reps ?? 0) < target.repMin ? move(wt(s), -1) : wt(s))))}, and build back to ${target.repMax}.` }
+  }
+  if (tr !== null && hardest !== null && hardest < tr - 0.5)
+    return { kind: 'hold', text: `You were closer to failure than planned (RIR ${hardest}, target ${target.rir}).${keep} Stop ${target.rir} reps short this time.` }
+
+  if (reps.every((r) => r >= need)) {
+    if (!loaded) return { kind: 'harder', text: `Every set reached ${need} reps. Time to make it harder: add weight, slow the lowering, or use a harder variation.` }
+    const easy = tr !== null && rirs.length === work.length && rirs.every((r) => r >= tr + 2)
+    const n = easy && 2 * step <= 0.15 * top ? 2 : 1
+    const next = work.map((s) => move(wt(s), n))
+    return { kind: 'add_load', kg: Math.max(...next), reps: target.repMin, text: `Every set reached ${need} reps${easy ? ' with plenty left' : ''}. Next time try ${label(next)} for ${target.repMin} or more reps. Reps drop a little at a higher load; build back to ${target.repMax} before the next jump.` }
+  }
+  return { kind: 'add_rep', text: `${keep.trim()} Add a rep where you can: ${reps.map((r) => Math.min(r + 1, target.repMax)).join(' · ')} (range ${range}).`.trim() }
 }
 
 // ───────── deficit: "holding", not stalled ─────────
@@ -99,8 +151,8 @@ export function frequency(ws: Workout[], today: string) {
 
 // ───────── adherence ─────────
 export const plannedWeekdays = (routines: Routine[]) => routines.flatMap((r) => r.days.flatMap((d) => d.weekdays))
-/** Completed planned sessions ÷ planned sessions × 100, over the last 4 weeks. Only days that have passed count. Null without planned days. */
-export function adherence(routines: Routine[], ws: Workout[], today: string, weeks = 4) {
+/** Completed planned sessions ÷ planned sessions × 100, over the last 4 weeks. Only days that have passed count; days marked as rest days are left out. Null without planned days. */
+export function adherence(routines: Routine[], ws: Workout[], today: string, weeks = 4, rest: Set<string> = new Set()) {
   const wd = plannedWeekdays(routines)
   if (!wd.length) return null
   const done = new Set(ws.filter((w) => w.finishedAt).map((w) => w.date))
@@ -109,6 +161,7 @@ export function adherence(routines: Routine[], ws: Workout[], today: string, wee
     const d = shiftDate(today, -i), dow = new Date(`${d}T12:00:00`).getDay()
     const n = wd.filter((x) => x === dow).length
     if (!n) continue
+    if (rest.has(d) && !done.has(d)) continue // a day you chose to rest is not a missed session
     if (i === 0 && !done.has(d)) continue // today counts once you log it
     planned += n
     if (done.has(d)) completed += 1

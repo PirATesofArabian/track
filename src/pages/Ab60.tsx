@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../lib/db'
 import { Btn, Card, Chips, inputCls } from '../lib/ui'
-import { todayStr } from '../lib/util'
+import { fmtInt, round0, round1, shiftDate, todayStr } from '../lib/util'
+import { useProfile, useSettings } from '../lib/hooks'
+import { weightTrend } from '../lib/body'
 import raw from '../data/ab60.json'
 
 // Every value shown here comes from src/data/ab60.json, generated from data/*.json (see tools/ab60).
@@ -88,6 +90,57 @@ function DayDetail({ d, done, onTick }: { d: Day; done: boolean; onTick: () => v
   )
 }
 
+// Reads your own logs for the calendar date of this programme day. Targets are the programme's (verified) values; nothing is written.
+function TrackerCard({ d, date }: { d: Day; date: string }) {
+  const settings = useSettings()
+  const profile = useProfile()
+  const t = useLiveQuery(async () => {
+    const [act, food, weights, waists, first] = await Promise.all([
+      db.activity.where('date').equals(date).toArray(),
+      db.foodLog.where('date').equals(date).toArray(),
+      db.bodyWeight.toArray(),
+      db.measurements.toArray(),
+      db.kv.get(START_KEY),
+    ])
+    const startDate = first?.value as string
+    const wl = waists.filter((m) => m.waistCm != null).sort((a, b) => a.date.localeCompare(b.date))
+    return {
+      steps: act.filter((a) => a.kind === 'steps').reduce((n, a) => n + (a.steps ?? 0), 0),
+      kcal: food.reduce((n, e) => n + e.kcal, 0), protein: food.reduce((n, e) => n + e.p, 0), items: food.length,
+      kg: weightTrend(weights).filter((w) => w.date <= date).pop()?.trendKg ?? null,
+      waistNow: [...wl].reverse().find((m) => m.date <= date && m.date >= startDate)?.waistCm ?? null,
+      waistDay1: wl.find((m) => m.date === startDate)?.waistCm ?? null,
+    }
+  }, [date])
+  if (!t) return null
+  const stepGoal = d.steps.v
+  const proteinRule = t.kg ? t.kg * 1.6 : null // programme rule: about 1.6 g per kg of body weight a day (PDF page 7)
+  const row = (label: string, value: string, ok?: boolean) => (
+    <div className="flex items-baseline justify-between gap-3 text-sm">
+      <span className="text-zinc-400">{label}</span><span className={ok === undefined ? 'text-zinc-200' : ok ? 'text-lime-400' : 'text-zinc-200'}>{value}</span>
+    </div>
+  )
+  const showWaist = d.waist || d.test
+  return (
+    <Card className="space-y-1.5">
+      <h3 className="text-sm font-semibold">From your tracker · {date}</h3>
+      {row('Steps', `${fmtInt(t.steps)} / ${fmtInt(stepGoal)} programme target`, t.steps >= stepGoal)}
+      {row('Protein', t.items ? `${round0(t.protein)} g` : 'nothing logged', proteinRule ? t.protein >= proteinRule : undefined)}
+      {proteinRule && <p className="text-[11px] text-zinc-500">Programme rule: about 1.6 g per kg a day = {round0(proteinRule)} g at {round1(t.kg!)} kg (7-day trend weight). Your own tracker target: {settings.p} g.</p>}
+      {!proteinRule && <p className="text-[11px] text-zinc-500">Log a weigh-in to see the programme's 1.6 g per kg protein figure. Your own tracker target: {settings.p} g.</p>}
+      {row('Calories logged', t.items ? `${fmtInt(t.kcal)} kcal` : 'nothing logged')}
+      {showWaist && (
+        <>
+          {row('Waist', t.waistNow != null ? `${t.waistNow} cm` : 'not measured')}
+          {t.waistNow != null && t.waistDay1 != null && d.day > 1 && row('Change since day 1', `${round1(t.waistNow - t.waistDay1) > 0 ? '+' : ''}${round1(t.waistNow - t.waistDay1)} cm`)}
+          {t.waistNow != null && profile.heightCm ? row('Waist to height', `${round1((t.waistNow / profile.heightCm) * 100)}% (target: under 50%)`, t.waistNow / profile.heightCm < 0.5) : null}
+          {t.waistNow != null && t.waistDay1 == null && d.day > 1 && <p className="text-[11px] text-zinc-500">No waist logged on day 1, so no change can be shown.</p>}
+        </>
+      )}
+    </Card>
+  )
+}
+
 function Reference() {
   const [tab, setTab] = useState<'phases' | 'moves' | 'eat' | 'test' | 'rules'>('phases')
   const rows = (o: Record<string, Sv<unknown>>) => Object.entries(o).map(([k, r]) => (
@@ -160,6 +213,7 @@ export default function Ab60Page() {
       )}
       <Chips value={view} onChange={setView} options={[{ v: 'today', label: 'Today' }, { v: 'days', label: 'All 60 days' }, { v: 'ref', label: 'Rules + moves' }]} />
       {view === 'today' && <DayDetail d={d} done={!!done[shown]} onTick={tick} />}
+      {view === 'today' && start && <TrackerCard d={d} date={shiftDate(start, shown - 1)} />}
       {view === 'days' && (
         <>
           <div className="grid grid-cols-6 gap-1.5">

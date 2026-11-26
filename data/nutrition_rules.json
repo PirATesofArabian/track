@@ -1,0 +1,348 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ]
+  },
+  "rules": [
+    {
+      "field": "approach",
+      "value": "No calorie counting and no banned foods. Your hand is your measuring cup.",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 intro",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "meals_per_day",
+      "value": "3 or 4",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 'EACH MEAL, 3 OR 4 MEALS A DAY'",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "portion_protein",
+      "value": {
+        "amount": "1-2 palms",
+        "examples": "meat, fish, eggs, tofu, Greek yoghurt"
+      },
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 card 1",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "portion_vegetables",
+      "value": {
+        "amount": "1-2 fists",
+        "examples": "any kind, the more the better"
+      },
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 card 2",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "portion_carbs",
+      "value": {
+        "amount": "1 cupped hand",
+        "examples": "rice, potatoes, oats, bread, fruit"
+      },
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 card 3",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "portion_fats",
+      "value": {
+        "amount": "1 thumb",
+        "examples": "oil, butter, nuts, cheese"
+      },
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 card 4",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "smaller_people",
+      "value": "If you're smaller, use 1 palm of protein per meal instead of 2, and use the same weekly check.",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_prose",
+      "evidence_location": "landing FAQ 'Is it for women too?'",
+      "evidence_ids": [
+        "PROSE_FAQ"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "protein_target",
+      "value": "About 1.6 g per kg of body weight a day (0.7 g per lb).",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 rule 1; page-04",
+      "evidence_ids": [
+        "IMG_07",
+        "IMG_04"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "rate_of_loss",
+      "value": "About 0.5 to 1% of your body weight a week.",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 rule 2",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "drink",
+      "value": "Drink water, not calories. Soda, juice and sweet coffees add up fast.",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 rule 3",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "eating_pace",
+      "value": "Eat slowly and stop at 80% full.",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 rule 4",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "treats",
+      "value": "Plan your treats. One you really want beats five you didn't.",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 rule 5",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "you_dont_need",
+      "value": [
+        "Fat-burner pills or detox teas",
+        "To cut out whole food groups",
+        "Fasting days or juice cleanses",
+        "To eat \"clean\" 100% of the time"
+      ],
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 'YOU DON'T NEED'",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "weekly_check",
+      "value": "Waist down, or weight average down? Change nothing. Nothing moved for 2 weeks in a row? Take away one cupped hand of carbs or one thumb of fat a day, and keep everything else the same. Feeling weak, dizzy or hungry all the time? Add one back.",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 weekly check box",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "weekly_check_day_tip",
+      "value": "Weekly check: if your waist did not move in 2 weeks, take away one fist of carbs a day.",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "DAYS[6].f (also days 14,21,28,35,42,49,56) vs page-07",
+      "evidence_ids": [
+        "JS_DAYS",
+        "IMG_07"
+      ],
+      "confidence": "low",
+      "verification_status": "CONFLICTING",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "Page data says remove 'one fist of carbs a day'. Page 7 says 'one cupped hand of carbs or one thumb of fat'. Both kept.",
+      "conflicting_values": [
+        {
+          "value": "Weekly check: if your waist did not move in 2 weeks, take away one fist of carbs a day.",
+          "source": "landing page data"
+        },
+        {
+          "value": "one cupped hand of carbs or one thumb of fat a day",
+          "source": "PDF page 7 preview image"
+        }
+      ]
+    },
+    {
+      "field": "carb_portion_in_day_tip",
+      "value": "One fist of carbs per meal, not a mountain.",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "DAYS[].f on walk days (4, 11, 18, ... 60)",
+      "evidence_ids": [
+        "JS_DAYS",
+        "IMG_07"
+      ],
+      "confidence": "low",
+      "verification_status": "CONFLICTING",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "Day tips say 'a fist of carbs'; page 7 defines a fist as vegetables and carbs as a cupped hand.",
+      "conflicting_values": [
+        {
+          "value": "One fist of carbs per meal, not a mountain.",
+          "source": "landing page data"
+        },
+        {
+          "value": "1 cupped hand of carbs per meal; 1-2 fists is vegetables",
+          "source": "PDF page 7 preview image"
+        }
+      ]
+    },
+    {
+      "field": "daily_tip_cycle",
+      "value": {
+        "1": "Protein at breakfast: eggs, yoghurt or a protein shake.",
+        "2": "Half your plate vegetables at lunch and dinner.",
+        "3": "Drink water, not calories: no soda or juice today.",
+        "4": "One fist of carbs per meal, not a mountain.",
+        "5": "A palm of protein at every meal. Count them: 3 or 4.",
+        "6": "Plan your treat: pick it, enjoy it, done.",
+        "7": "Weekly check: if your waist did not move in 2 weeks, take away one fist of carbs a day."
+      },
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "DAYS[0..6].f (repeats weekly)",
+      "evidence_ids": [
+        "JS_DAYS"
+      ],
+      "confidence": "medium",
+      "verification_status": "PARTIALLY_VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "The same 7 tips repeat every week; per-day tips are in workout_schedule.json."
+    },
+    {
+      "field": "holiday_rules",
+      "value": [
+        "Protein first: a protein-heavy snack before you go, start your plate with the meat or fish.",
+        "One plate, sitting down: fill one plate, sit, eat slowly.",
+        "Pick your favourites: have the dessert you actually love.",
+        "One drink, one water: a glass of water between alcoholic drinks.",
+        "Walk after the big meal: 10 to 20 minutes.",
+        "No \"start on Monday\": the next meal is a normal meal, the next day a normal plan day."
+      ],
+      "source_url": "https://public-files.gumroad.com/kevrgj1pw7cfzcsyah7j3hjnpws9",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-08 six cards; landing 'One meal. Not one month.'",
+      "evidence_ids": [
+        "IMG_08",
+        "PROSE_FAQ"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "calories_or_macro_numbers_beyond_hand_rules",
+      "value": null,
+      "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "source_type": "none",
+      "evidence_location": "not publicly exposed",
+      "evidence_ids": [
+        "PROSE_SEO"
+      ],
+      "confidence": "none",
+      "verification_status": "UNAVAILABLE",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "unavailable_reason": "The programme says no calorie counting; no calorie or gram targets are published except protein 1.6 g/kg."
+    },
+    {
+      "field": "food_lists_or_recipes",
+      "value": null,
+      "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "source_type": "none",
+      "evidence_location": "not publicly exposed",
+      "evidence_ids": [
+        "PROSE_SEO"
+      ],
+      "confidence": "none",
+      "verification_status": "UNAVAILABLE",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "unavailable_reason": "PDF pages beyond the 10 previews are not public."
+    }
+  ]
+}

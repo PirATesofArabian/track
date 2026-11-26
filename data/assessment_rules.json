@@ -1,0 +1,220 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ]
+  },
+  "rules": [
+    {
+      "field": "test_days",
+      "value": [
+        1,
+        15,
+        29,
+        43,
+        60
+      ],
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 header; page-22 test-day log rows",
+      "evidence_ids": [
+        "IMG_05",
+        "IMG_22",
+        "PROSE_FAQ"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "day_60",
+      "value": "Final test day: no workout; steps 10,000.",
+      "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "source_type": "public_preview_image",
+      "evidence_location": "'T = final test' legend; DAYS[59]",
+      "evidence_ids": [
+        "IMG_19",
+        "IMG_22",
+        "JS_DAYS"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "conditions",
+      "value": "Do it on day 1 before your first session. Same time of day and before you eat, so the numbers mean something.",
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 intro",
+      "evidence_ids": [
+        "IMG_05"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "measure_waist",
+      "value": "Wrap the tape around your waist at belly-button height. Breathe out normally, don't suck in, and write down the number. Same spot every time.",
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 step 1",
+      "evidence_ids": [
+        "IMG_05"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "max_plank",
+      "value": "Hold a front plank as long as you can with good form. Stop the clock when your hips sag or lift.",
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 step 2",
+      "evidence_ids": [
+        "IMG_05"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "string_test",
+      "value": "Cut a piece of string as long as you are tall and fold it in half. If it fits around your waist, your waist is under half your height.",
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 step 3",
+      "evidence_ids": [
+        "IMG_05"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "photo",
+      "value": "Front and side, same spot, same light, same time of day, relaxed. Keep them on your phone.",
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 step 4",
+      "evidence_ids": [
+        "IMG_05"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "weight_optional",
+      "value": "Weigh yourself every morning for a week and use the average.",
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 step 5",
+      "evidence_ids": [
+        "IMG_05"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "log_columns",
+      "value": [
+        "DAY",
+        "WAIST",
+        "STRING TEST",
+        "MAX PLANK",
+        "WEIGHT AVG",
+        "HOW I FEEL"
+      ],
+      "source_url": "https://public-files.gumroad.com/lsppkhn0ynlpjqkany89w96qxuxm",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-22 'TEST-DAY LOG' table",
+      "evidence_ids": [
+        "IMG_22"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "string_test_bands",
+      "value": {
+        "yes": "waist under 48% of height",
+        "just": "48-50%",
+        "no": "over half (>50%)"
+      },
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "landing interactive: r<.48 Y, r<=.5 J, else N",
+      "evidence_ids": [
+        "JS_STRING",
+        "PROSE_FAQ"
+      ],
+      "confidence": "medium",
+      "verification_status": "PARTIALLY_VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "The landing page says the 'just' band is 'our own simple scale'; the PDF only says under half your height."
+    },
+    {
+      "field": "waist_to_height_target",
+      "value": "Keep your waist under half your height.",
+      "source_url": "https://public-files.gumroad.com/f8qqnf4nudyb340du9jm2bbhrpbk",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-04 '0.5 A TARGET YOU CAN CHECK'; page-05",
+      "evidence_ids": [
+        "IMG_04",
+        "IMG_05"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "weekly_waist_check",
+      "value": {
+        "days": [
+          7,
+          14,
+          21,
+          28,
+          35,
+          42,
+          49,
+          56
+        ]
+      },
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "'R' cells; DAYS[].wc",
+      "evidence_ids": [
+        "IMG_18",
+        "IMG_22",
+        "JS_DAYS"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    }
+  ]
+}

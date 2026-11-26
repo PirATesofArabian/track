@@ -1,0 +1,1735 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ],
+    "safety_notes": [
+      {
+        "field": "lower_back",
+        "value": "Bend your knees on leg raises, keep reverse crunches small, and press your back down on the hollow hold and the bug. Still hurts? Skip the move and see a doctor or physio.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing FAQ 'My lower back hurts on some moves.'",
+        "evidence_ids": [
+          "PROSE_FAQ"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      {
+        "field": "medical",
+        "value": "Not medical advice. If you have back pain or a health condition, or you're pregnant, talk to a doctor first. Under 18: only with an adult supervising; skip the diet part.",
+        "source_url": "https://public-files.gumroad.com/mx2vpb4er024voqaglxditebx9y8",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-02 'Safety'; landing FAQ",
+        "evidence_ids": [
+          "IMG_02",
+          "PROSE_FAQ"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      }
+    ]
+  },
+  "exercises": [
+    {
+      "id": "front-plank",
+      "number": 1,
+      "group": "abs",
+      "name": {
+        "field": "name",
+        "value": "Front plank",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing summary: '7 ab moves: ...'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "tag": {
+        "field": "tag",
+        "value": "THE WHOLE FRONT · HOLD",
+        "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+        "source_type": "public_preview_image",
+        "evidence_location": "MOVES[0].tag",
+        "evidence_ids": [
+          "IMG_10",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "sessions": {
+        "field": "sessions",
+        "value": [
+          "Abs A",
+          "Abs C"
+        ],
+        "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-18 session cards; MOVES[].sess",
+        "evidence_ids": [
+          "IMG_18",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": [
+          "Forearms on the floor, elbows right under your shoulders.",
+          "Step your feet back. Your body is one straight line from head to heels.",
+          "Squeeze your glutes and brace your stomach, as if someone is about to poke it.",
+          "Breathe normally. Stop when your hips sag or lift."
+        ],
+        "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+        "source_type": "public_preview_image",
+        "evidence_location": "MOVES[0].how",
+        "evidence_ids": [
+          "IMG_10",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "works": {
+        "field": "works",
+        "value": "The whole front: the six-pack (rectus abdominis) and the deep muscle under it.",
+        "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+        "source_type": "public_preview_image",
+        "evidence_location": "MOVES[0].works",
+        "evidence_ids": [
+          "IMG_10",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": "Hips sagging toward the floor, or hips up in the air. Holding your breath.",
+        "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+        "source_type": "public_preview_image",
+        "evidence_location": "MOVES[0].avoid",
+        "evidence_ids": [
+          "IMG_10",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "easier": {
+        "field": "easier",
+        "value": "Knees on the floor, or hands on a chair.",
+        "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+        "source_type": "public_preview_image",
+        "evidence_location": "MOVES[0].easy",
+        "evidence_ids": [
+          "IMG_10",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "harder": {
+        "field": "harder",
+        "value": "Shoulder taps: lift one hand at a time without letting your hips rock.",
+        "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+        "source_type": "public_preview_image",
+        "evidence_location": "MOVES[0].hard",
+        "evidence_ids": [
+          "IMG_10",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "be_safe": {
+        "field": "be_safe",
+        "value": "If your lower back aches, drop to your knees or shorten the hold.",
+        "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+        "source_type": "public_preview_image",
+        "evidence_location": "MOVES[0].safe",
+        "evidence_ids": [
+          "IMG_10",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "20-30 s",
+            "parsed": {
+              "kind": "hold",
+              "min": 20,
+              "max": 30,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[0].dose[0]; page-10",
+          "evidence_ids": [
+            "IMG_10",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "30-40 s",
+            "parsed": {
+              "kind": "hold",
+              "min": 30,
+              "max": 40,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[0].dose[1]; page-10",
+          "evidence_ids": [
+            "IMG_10",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "40-50 s",
+            "parsed": {
+              "kind": "hold",
+              "min": 40,
+              "max": 50,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[0].dose[2]; page-10",
+          "evidence_ids": [
+            "IMG_10",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "45-60 s",
+            "parsed": {
+              "kind": "hold",
+              "min": 45,
+              "max": 60,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[0].dose[3]; page-10",
+          "evidence_ids": [
+            "IMG_10",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        }
+      }
+    },
+    {
+      "id": "reverse-crunch",
+      "number": 2,
+      "group": "abs",
+      "name": {
+        "field": "name",
+        "value": "Reverse crunch",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing summary: '7 ab moves: ...'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "tag": {
+        "field": "tag",
+        "value": "THE LOWER BLOCKS · REPS",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[1].tag",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "sessions": {
+        "field": "sessions",
+        "value": [
+          "Abs A"
+        ],
+        "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-18 session cards; MOVES[].sess",
+        "evidence_ids": [
+          "IMG_18",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": [
+          "Lie on your back, arms by your sides, knees bent at 90° above your hips.",
+          "Curl your hips off the floor and bring your knees toward your chest.",
+          "Lower slowly, for 2 to 3 seconds, until your hips touch down.",
+          "No swinging. If your legs fly, your abs aren't doing the work."
+        ],
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[1].how",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "works": {
+        "field": "works",
+        "value": "The lower part of the six-pack, which curls your pelvis up.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[1].works",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": "Swinging your legs for momentum. Pushing hard with your hands.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[1].avoid",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "easier": {
+        "field": "easier",
+        "value": "A smaller range: just lift your hips a little.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[1].easy",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "harder": {
+        "field": "harder",
+        "value": "Slower: 4 seconds down. Or straighten your legs a little.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[1].hard",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "be_safe": {
+        "field": "be_safe",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[1].safe",
+        "evidence_ids": [
+          "JS_MOVES"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "The landing page data has an empty 'be safe' field for this move. The PDF page for this move is not public, so a note there cannot be ruled out."
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "8-10",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 10,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[1].dose[0]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "10-12",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[1].dose[1]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "12-15 slow",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "slow"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[1].dose[2]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "15 slow",
+            "parsed": {
+              "kind": "reps",
+              "min": 15,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "slow"
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[1].dose[3]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        }
+      }
+    },
+    {
+      "id": "flat-back-bug",
+      "number": 3,
+      "group": "abs",
+      "name": {
+        "field": "name",
+        "value": "Flat-back bug",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing summary: '7 ab moves: ...'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "tag": {
+        "field": "tag",
+        "value": "BRACE + CONTROL · REPS",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[2].tag",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "sessions": {
+        "field": "sessions",
+        "value": [
+          "Abs A"
+        ],
+        "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-18 session cards; MOVES[].sess",
+        "evidence_ids": [
+          "IMG_18",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": [
+          "Lie on your back, arms up to the ceiling, knees bent at 90° over your hips.",
+          "Press your lower back flat into the floor, and keep it there the whole time.",
+          "Slowly reach one arm back and the opposite leg out, just above the floor.",
+          "Come back to the middle and switch sides. That's 1 rep per side."
+        ],
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[2].how",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "works": {
+        "field": "works",
+        "value": "The deep brace that keeps your stomach flat, plus the six-pack holding still.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[2].works",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": "Your lower back lifting off the floor. Rushing.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[2].avoid",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "easier": {
+        "field": "easier",
+        "value": "Move only the leg; keep both arms up.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[2].easy",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "harder": {
+        "field": "harder",
+        "value": "Slower, with a 2-second pause at full reach.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[2].hard",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "be_safe": {
+        "field": "be_safe",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[2].safe",
+        "evidence_ids": [
+          "JS_MOVES"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "The landing page data has an empty 'be safe' field for this move. The PDF page for this move is not public, so a note there cannot be ruled out."
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "6 each side",
+            "parsed": {
+              "kind": "reps",
+              "min": 6,
+              "max": 6,
+              "unit": "reps",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[2].dose[0]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "8 each side",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 8,
+              "unit": "reps",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[2].dose[1]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "10 each side",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 10,
+              "unit": "reps",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[2].dose[2]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "12 each side",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 12,
+              "unit": "reps",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[2].dose[3]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        }
+      }
+    },
+    {
+      "id": "side-plank",
+      "number": 4,
+      "group": "abs",
+      "name": {
+        "field": "name",
+        "value": "Side plank",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing summary: '7 ab moves: ...'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "tag": {
+        "field": "tag",
+        "value": "THE SIDES (OBLIQUES) · HOLD",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[3].tag",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "sessions": {
+        "field": "sessions",
+        "value": [
+          "Abs B"
+        ],
+        "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-18 session cards; MOVES[].sess",
+        "evidence_ids": [
+          "IMG_18",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": [
+          "Lie on your side, forearm on the floor, elbow right under your shoulder.",
+          "Stack your feet, or put the top foot just in front.",
+          "Lift your hips until your body is one straight line from head to feet.",
+          "Hold and breathe, then switch sides. Both sides get the same time."
+        ],
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[3].how",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "works": {
+        "field": "works",
+        "value": "The obliques at your sides: the lines that frame a six-pack.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[3].works",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": "Hips sagging. Your shoulder shrugging up to your ear.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[3].avoid",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "easier": {
+        "field": "easier",
+        "value": "Bottom knee on the floor.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[3].easy",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "harder": {
+        "field": "harder",
+        "value": "Lift the top leg, or reach the top arm to the ceiling.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[3].hard",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "be_safe": {
+        "field": "be_safe",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[3].safe",
+        "evidence_ids": [
+          "JS_MOVES"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "The landing page data has an empty 'be safe' field for this move. The PDF page for this move is not public, so a note there cannot be ruled out."
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "15-20 s each side",
+            "parsed": {
+              "kind": "hold",
+              "min": 15,
+              "max": 20,
+              "unit": "seconds",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[3].dose[0]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "20-30 s each side",
+            "parsed": {
+              "kind": "hold",
+              "min": 20,
+              "max": 30,
+              "unit": "seconds",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[3].dose[1]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "30-40 s each side",
+            "parsed": {
+              "kind": "hold",
+              "min": 30,
+              "max": 40,
+              "unit": "seconds",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[3].dose[2]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "35-45 s each side",
+            "parsed": {
+              "kind": "hold",
+              "min": 35,
+              "max": 45,
+              "unit": "seconds",
+              "per": "side",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[3].dose[3]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        }
+      }
+    },
+    {
+      "id": "squeeze-crunch",
+      "number": 5,
+      "group": "abs",
+      "name": {
+        "field": "name",
+        "value": "Squeeze crunch",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing summary: '7 ab moves: ...'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "tag": {
+        "field": "tag",
+        "value": "THE BLOCKS · REPS + LOAD",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[4].tag",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "sessions": {
+        "field": "sessions",
+        "value": [
+          "Abs B",
+          "Abs C"
+        ],
+        "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-18 session cards; MOVES[].sess",
+        "evidence_ids": [
+          "IMG_18",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": [
+          "Lie on your back, knees bent, feet flat. From CARVE on, hug a water jug to your chest.",
+          "Curl your head and shoulders off the floor: ribs toward hips.",
+          "At the top, squeeze your abs hard for 2 seconds.",
+          "Lower slowly. Never pull on your neck."
+        ],
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[4].how",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "works": {
+        "field": "works",
+        "value": "The six-pack itself. This is the move that grows the blocks, so it gets load later.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[4].works",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": "Yanking your head with your hands. Bouncing up and down fast.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[4].avoid",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "easier": {
+        "field": "easier",
+        "value": "Arms reaching forward to your knees.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[4].easy",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "harder": {
+        "field": "harder",
+        "value": "A heavier jug, or a backpack with books.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[4].hard",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "be_safe": {
+        "field": "be_safe",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[4].safe",
+        "evidence_ids": [
+          "JS_MOVES"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "The landing page data has an empty 'be safe' field for this move. The PDF page for this move is not public, so a note there cannot be ruled out."
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "10-12",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[4].dose[0]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "12-15",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[4].dose[1]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "12-15 + jug",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "+ jug"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[4].dose[2]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "15 + jug",
+            "parsed": {
+              "kind": "reps",
+              "min": 15,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "+ jug"
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[4].dose[3]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        }
+      }
+    },
+    {
+      "id": "hollow-hold",
+      "number": 6,
+      "group": "abs",
+      "name": {
+        "field": "name",
+        "value": "Hollow hold",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing summary: '7 ab moves: ...'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "tag": {
+        "field": "tag",
+        "value": "THE WHOLE FRONT · HOLD",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[5].tag",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "sessions": {
+        "field": "sessions",
+        "value": [
+          "Abs B"
+        ],
+        "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-18 session cards; MOVES[].sess",
+        "evidence_ids": [
+          "IMG_18",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": [
+          "Lie on your back and press your lower back into the floor.",
+          "Lift your shoulders and legs a little off the floor. Arms reach forward, or past your head.",
+          "Your body makes a shallow banana shape. Your lower back stays down.",
+          "Hold and breathe. When your back lifts, bend your knees or stop."
+        ],
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[5].how",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "works": {
+        "field": "works",
+        "value": "The whole front of your core at once: the shape gymnasts train.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[5].works",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": "Your lower back arching off the floor. Holding your breath.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[5].avoid",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "easier": {
+        "field": "easier",
+        "value": "The tuck: knees bent in, arms forward (FOUNDATION).",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[5].easy",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "harder": {
+        "field": "harder",
+        "value": "Legs lower and arms overhead (CARVE and REVEAL).",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[5].hard",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "be_safe": {
+        "field": "be_safe",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[5].safe",
+        "evidence_ids": [
+          "JS_MOVES"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "The landing page data has an empty 'be safe' field for this move. The PDF page for this move is not public, so a note there cannot be ruled out."
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "15-20 s tuck",
+            "parsed": {
+              "kind": "hold",
+              "min": 15,
+              "max": 20,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": "tuck"
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[5].dose[0]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "20-30 s half",
+            "parsed": {
+              "kind": "hold",
+              "min": 20,
+              "max": 30,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": "half"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[5].dose[1]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "20-30 s full",
+            "parsed": {
+              "kind": "hold",
+              "min": 20,
+              "max": 30,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": "full"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[5].dose[2]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "30-40 s full",
+            "parsed": {
+              "kind": "hold",
+              "min": 30,
+              "max": 40,
+              "unit": "seconds",
+              "per": null,
+              "qualifier": "full"
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[5].dose[3]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        }
+      }
+    },
+    {
+      "id": "lying-leg-raise",
+      "number": 7,
+      "group": "abs",
+      "name": {
+        "field": "name",
+        "value": "Lying leg raise",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing summary: '7 ab moves: ...'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "tag": {
+        "field": "tag",
+        "value": "THE LOWER BLOCKS · REPS",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[6].tag",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "sessions": {
+        "field": "sessions",
+        "value": [
+          "Abs C"
+        ],
+        "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-18 session cards; MOVES[].sess",
+        "evidence_ids": [
+          "IMG_18",
+          "JS_MOVES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": [
+          "Lie on your back, hands flat by your hips, lower back pressed down.",
+          "Keep your legs together and lift them to about 45°. In FOUNDATION, bend your knees.",
+          "Lower them slowly, stopping just above the floor.",
+          "If your lower back lifts, stop higher or bend your knees."
+        ],
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[6].how",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "works": {
+        "field": "works",
+        "value": "The lower six-pack and the hip flexors.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[6].works",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": "Arching your lower back. Dropping your legs fast.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[6].avoid",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "easier": {
+        "field": "easier",
+        "value": "Knees bent.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[6].easy",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "harder": {
+        "field": "harder",
+        "value": "Got a pull-up bar? Hanging knee raises, 8 to 12, in CARVE and REVEAL.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[6].hard",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "be_safe": {
+        "field": "be_safe",
+        "value": "Sensitive lower back? Keep your knees bent, or swap this move for reverse crunches.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "MOVES[6].safe",
+        "evidence_ids": [
+          "JS_MOVES",
+          "DOM_MOVES"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only the front plank card is shown in a public preview page (page 10). This card comes from the landing page data."
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "6-8 knees bent",
+            "parsed": {
+              "kind": "reps",
+              "min": 6,
+              "max": 8,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "knees bent"
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[6].dose[0]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "8-10",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 10,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[6].dose[1]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "10-12 legs straight",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "legs straight"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "MOVES[6].dose[2]",
+          "evidence_ids": [
+            "JS_MOVES"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "12 legs straight",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "legs straight"
+            }
+          },
+          "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+          "source_type": "public_preview_image",
+          "evidence_location": "MOVES[6].dose[3]; page-18",
+          "evidence_ids": [
+            "IMG_18",
+            "JS_MOVES"
+          ],
+          "confidence": "high",
+          "verification_status": "VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00"
+        }
+      }
+    }
+  ]
+}

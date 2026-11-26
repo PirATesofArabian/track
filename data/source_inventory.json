@@ -1,0 +1,224 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ]
+  },
+  "product": {
+    "name": "AB THEORY 60: The 60-Day Visible Abs Plan (No Gym)",
+    "seller": "Rep Theory",
+    "sku": "ervvan",
+    "price_usd": 13.32,
+    "source": "schema.org JSON-LD on the landing page",
+    "pdf_pages_advertised": 23
+  },
+  "sources": [
+    {
+      "id": "landing_shell",
+      "url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "type": "public_html",
+      "retrieved_at": "2026-11-24T08:39:54+00:00",
+      "sha256": "0b2cc07afafbf840ce86af157ca39947262e06cf34196a4fbf69f9b4b76bec23",
+      "notes": "Wrapper with SEO text, JSON-LD, and an iframe to the embed."
+    },
+    {
+      "id": "landing_embed",
+      "url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "type": "public_html_with_inline_js",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c08d6e3e3d0ff89b03adcba178dc46fc53e1775929c2f7dfe49d31f4f3439227",
+      "notes": "Contains DAYS, MOVES, IMG data arrays and the interactive components."
+    },
+    {
+      "id": "page_01",
+      "url": "https://public-files.gumroad.com/u7c6qai6wcgt2fcup2i7yy82sv4c",
+      "type": "public_preview_image",
+      "pdf_page": 1,
+      "retrieved_at": "2026-11-24T08:40:01+00:00",
+      "sha256": "8ab5656e1459e06913b1e3e843db2bd5a5dd9af209ada82404b20ebfa47a2f4c",
+      "bytes": 231223,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 15
+    },
+    {
+      "id": "page_02",
+      "url": "https://public-files.gumroad.com/mx2vpb4er024voqaglxditebx9y8",
+      "type": "public_preview_image",
+      "pdf_page": 2,
+      "retrieved_at": "2026-11-24T08:40:02+00:00",
+      "sha256": "53ecf2e26ee43b1cf8c2c043c9830d64a795862cbda57f9ad4bbd82173846419",
+      "bytes": 126349,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 47
+    },
+    {
+      "id": "page_04",
+      "url": "https://public-files.gumroad.com/f8qqnf4nudyb340du9jm2bbhrpbk",
+      "type": "public_preview_image",
+      "pdf_page": 4,
+      "retrieved_at": "2026-11-24T08:40:02+00:00",
+      "sha256": "d75c60b7c01839dc137bb87853bbe461d68b54e8da9e1c476d2cdc702b6c4fe8",
+      "bytes": 131300,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 56
+    },
+    {
+      "id": "page_05",
+      "url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "type": "public_preview_image",
+      "pdf_page": 5,
+      "retrieved_at": "2026-11-24T08:40:03+00:00",
+      "sha256": "9c665c7efcb7ad52c693b0a5151624b67c359ed93643dfb867846f430be683ae",
+      "bytes": 106516,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 51
+    },
+    {
+      "id": "page_07",
+      "url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "type": "public_preview_image",
+      "pdf_page": 7,
+      "retrieved_at": "2026-11-24T08:40:03+00:00",
+      "sha256": "5d90bbe608faa0655ea007c6e1856e3631f9674285ccb1cf3e205a659aa06845",
+      "bytes": 137852,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 47
+    },
+    {
+      "id": "page_08",
+      "url": "https://public-files.gumroad.com/kevrgj1pw7cfzcsyah7j3hjnpws9",
+      "type": "public_preview_image",
+      "pdf_page": 8,
+      "retrieved_at": "2026-11-24T08:40:04+00:00",
+      "sha256": "b7eef08d1f2f13af841487b59785bdc7507bf1660b01889ccaca1de235f92a94",
+      "bytes": 120634,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 38
+    },
+    {
+      "id": "page_10",
+      "url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+      "type": "public_preview_image",
+      "pdf_page": 10,
+      "retrieved_at": "2026-11-24T08:40:04+00:00",
+      "sha256": "7b7a2f9cb15128f60ed114d63cf29f8fe9834053f6466e36bce05bed674b80f8",
+      "bytes": 97809,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 42
+    },
+    {
+      "id": "page_18",
+      "url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "type": "public_preview_image",
+      "pdf_page": 18,
+      "retrieved_at": "2026-11-24T08:40:05+00:00",
+      "sha256": "c6a32353fa2fdd72707741d9bc6fd05fb00a19a675d747557da52320e942136c",
+      "bytes": 99587,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 63
+    },
+    {
+      "id": "page_19",
+      "url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "type": "public_preview_image",
+      "pdf_page": 19,
+      "retrieved_at": "2026-11-24T08:40:05+00:00",
+      "sha256": "ed5bf9d0cc9b5056cd81a25688860d1234c91da9f55e0f675b027bbfab24cb08",
+      "bytes": 116405,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 81
+    },
+    {
+      "id": "page_22",
+      "url": "https://public-files.gumroad.com/lsppkhn0ynlpjqkany89w96qxuxm",
+      "type": "public_preview_image",
+      "pdf_page": 22,
+      "retrieved_at": "2026-11-24T08:40:06+00:00",
+      "sha256": "bd134404761015241377af4e23d788cc21d116f3c27c6dc2fbf5c95a99d09f64",
+      "bytes": 108239,
+      "ocr_engine": "macOS Vision VNRecognizeTextRequest (accurate)",
+      "ocr_lines": 79
+    }
+  ],
+  "pdf_pages": {
+    "public_previews": [
+      1,
+      2,
+      4,
+      5,
+      7,
+      8,
+      10,
+      18,
+      19,
+      22
+    ],
+    "not_public": [
+      3,
+      6,
+      9,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      20,
+      21,
+      23
+    ],
+    "note": "Page numbers 3, 6, 9, 11-17, 20, 21, 23 are not exposed. Pages referenced by number in public pages: 3 (Plank), 5, 6 (three jobs), 10, 18, 19, 20 (missed days), 22."
+  },
+  "authorised_pdf_supplied": false,
+  "network_domains_contacted": {
+    "thereptheory.gumroad.com": 6,
+    "assets.gumroad.com": 14,
+    "static.cloudflareinsights.com": 1,
+    "public-files.gumroad.com": 29
+  },
+  "tools": {
+    "browser": "Playwright Chromium (headless)",
+    "html_parsing": "BeautifulSoup + lxml",
+    "ocr": "macOS Vision VNRecognizeTextRequest (tesseract not installed)"
+  },
+  "not_done": [
+    "No purchase, checkout, or licence key.",
+    "No access to protected download URLs or authenticated pages.",
+    "No Telegram integration or bot data used.",
+    "Incomplete previews are not treated as complete data: unavailable fields are null with a reason."
+  ],
+  "crosschecks": {
+    "dom_vs_script_mismatch_days": [],
+    "calendar_image_vs_script_mismatch_days": [],
+    "ocr_phrase_misses": [],
+    "conflicts_found": [
+      [
+        "food_tip",
+        "fist vs cupped hand for carbs"
+      ],
+      [
+        "rest_seconds",
+        "40 s (page data) vs 45 s (page 18)"
+      ]
+    ]
+  }
+}

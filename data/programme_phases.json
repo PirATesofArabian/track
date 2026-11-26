@@ -1,0 +1,493 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ]
+  },
+  "phases": [
+    {
+      "number": 1,
+      "name": "Foundation",
+      "day_range": {
+        "field": "day_range",
+        "value": {
+          "first": 1,
+          "last": 14
+        },
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 table 'DAYS a-b'; landing .phases; DAYS[].p",
+        "evidence_ids": [
+          "IMG_19",
+          "PROSE_PHASES",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "ab_rounds": {
+        "field": "ab_rounds",
+        "value": "2 in week 1, then 3",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'ROUNDS' column; page-18 'ROUNDS' card",
+        "evidence_ids": [
+          "IMG_19",
+          "IMG_18"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "daily_steps": {
+        "field": "daily_steps",
+        "value": 7000,
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'STEPS A DAY' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "what_changes": {
+        "field": "what_changes",
+        "value": "Learn the 7 moves with clean form and build the step habit. 2 rounds in week 1, then 3.",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'WHAT CHANGES' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "landing_summary": {
+        "field": "landing_summary",
+        "value": "Learn the 7 moves, build the habit.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing .phases list",
+        "evidence_ids": [
+          "PROSE_PHASES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "long_walk_steps": {
+        "field": "long_walk_steps",
+        "value": 9000,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "DAYS[].s on the second full-body day of each week",
+        "evidence_ids": [
+          "JS_DAYS"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only in the landing page data. No preview page gives a long-walk number."
+      }
+    },
+    {
+      "number": 2,
+      "name": "Build",
+      "day_range": {
+        "field": "day_range",
+        "value": {
+          "first": 15,
+          "last": 28
+        },
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 table 'DAYS a-b'; landing .phases; DAYS[].p",
+        "evidence_ids": [
+          "IMG_19",
+          "PROSE_PHASES",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "ab_rounds": {
+        "field": "ab_rounds",
+        "value": "3",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'ROUNDS' column; page-18 'ROUNDS' card",
+        "evidence_ids": [
+          "IMG_19",
+          "IMG_18"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "daily_steps": {
+        "field": "daily_steps",
+        "value": 8000,
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'STEPS A DAY' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "what_changes": {
+        "field": "what_changes",
+        "value": "Longer holds and more reps. First retest on day 15: your waist should be moving.",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'WHAT CHANGES' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "landing_summary": {
+        "field": "landing_summary",
+        "value": "Longer holds, more reps.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing .phases list",
+        "evidence_ids": [
+          "PROSE_PHASES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "long_walk_steps": {
+        "field": "long_walk_steps",
+        "value": 10000,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "DAYS[].s on the second full-body day of each week",
+        "evidence_ids": [
+          "JS_DAYS"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only in the landing page data. No preview page gives a long-walk number."
+      }
+    },
+    {
+      "number": 3,
+      "name": "Carve",
+      "day_range": {
+        "field": "day_range",
+        "value": {
+          "first": 29,
+          "last": 42
+        },
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 table 'DAYS a-b'; landing .phases; DAYS[].p",
+        "evidence_ids": [
+          "IMG_19",
+          "PROSE_PHASES",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "ab_rounds": {
+        "field": "ab_rounds",
+        "value": "3",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'ROUNDS' column; page-18 'ROUNDS' card",
+        "evidence_ids": [
+          "IMG_19",
+          "IMG_18"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "daily_steps": {
+        "field": "daily_steps",
+        "value": 9000,
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'STEPS A DAY' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "what_changes": {
+        "field": "what_changes",
+        "value": "The harder versions: the full hollow, straight-leg raises and a water jug on the crunch.",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'WHAT CHANGES' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "landing_summary": {
+        "field": "landing_summary",
+        "value": "Harder versions, a water jug on the crunch.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing .phases list",
+        "evidence_ids": [
+          "PROSE_PHASES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "long_walk_steps": {
+        "field": "long_walk_steps",
+        "value": 11000,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "DAYS[].s on the second full-body day of each week",
+        "evidence_ids": [
+          "JS_DAYS"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only in the landing page data. No preview page gives a long-walk number."
+      }
+    },
+    {
+      "number": 4,
+      "name": "Reveal",
+      "day_range": {
+        "field": "day_range",
+        "value": {
+          "first": 43,
+          "last": 60
+        },
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 table 'DAYS a-b'; landing .phases; DAYS[].p",
+        "evidence_ids": [
+          "IMG_19",
+          "PROSE_PHASES",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "ab_rounds": {
+        "field": "ab_rounds",
+        "value": "4",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'ROUNDS' column; page-18 'ROUNDS' card",
+        "evidence_ids": [
+          "IMG_19",
+          "IMG_18"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "daily_steps": {
+        "field": "daily_steps",
+        "value": 10000,
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'STEPS A DAY' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "what_changes": {
+        "field": "what_changes",
+        "value": "4 rounds of abs and 10,000 steps. Final test on day 60.",
+        "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+        "source_type": "public_preview_image",
+        "evidence_location": "page-19 'WHAT CHANGES' column",
+        "evidence_ids": [
+          "IMG_19"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "landing_summary": {
+        "field": "landing_summary",
+        "value": "Four rounds and the final test on day 60.",
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing .phases list",
+        "evidence_ids": [
+          "PROSE_PHASES"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "long_walk_steps": {
+        "field": "long_walk_steps",
+        "value": 12000,
+        "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+        "source_type": "public_page_script_data",
+        "evidence_location": "DAYS[].s on the second full-body day of each week",
+        "evidence_ids": [
+          "JS_DAYS"
+        ],
+        "confidence": "medium",
+        "verification_status": "PARTIALLY_VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Only in the landing page data. No preview page gives a long-walk number."
+      }
+    }
+  ],
+  "programme_facts": [
+    {
+      "field": "total_days",
+      "value": 60,
+      "source_url": "https://public-files.gumroad.com/mx2vpb4er024voqaglxditebx9y8",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-02 stats; page-19 title",
+      "evidence_ids": [
+        "IMG_02",
+        "IMG_19"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "test_days",
+      "value": [
+        1,
+        15,
+        29,
+        43,
+        60
+      ],
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-05 header; gold cells on pages 19/22",
+      "evidence_ids": [
+        "IMG_05",
+        "IMG_19",
+        "IMG_22"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "weekly_repeat",
+      "value": "Same week repeats eight and a half times",
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-18 intro",
+      "evidence_ids": [
+        "IMG_18"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "session_length",
+      "value": "12 to 20 minutes, plus walking; day 7 of every week is rest",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_prose",
+      "evidence_location": "landing FAQ 'How long is each session?'",
+      "evidence_ids": [
+        "PROSE_FAQ"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "equipment",
+      "value": [
+        "a floor or a mat",
+        "a sturdy table (for rows)",
+        "a couch or a strong chair",
+        "a 2 to 4 litre water jug, or a backpack with books",
+        "a soft tape measure, or a piece of string",
+        "pull-up bar optional"
+      ],
+      "source_url": "https://public-files.gumroad.com/mx2vpb4er024voqaglxditebx9y8",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-02 'WHAT YOU NEED'; landing FAQ",
+      "evidence_ids": [
+        "IMG_02",
+        "PROSE_FAQ"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "after_day_60",
+      "value": "Still losing? Keep REVEAL going. Happy? Keep 3 ab days a week plus the food rules, and you keep the result.",
+      "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-19 'AFTER DAY 60' box",
+      "evidence_ids": [
+        "IMG_19"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "warm_up",
+      "value": "2 minutes: march on the spot, 10 slow cat-cows, 5 slow reverse crunches.",
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-18 'WARM-UP' card",
+      "evidence_ids": [
+        "IMG_18"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    }
+  ]
+}

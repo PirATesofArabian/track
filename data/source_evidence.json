@@ -1,0 +1,254 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ]
+  },
+  "evidence": [
+    {
+      "id": "JS_DAYS",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "embed page inline <script>: var DAYS (60 objects)",
+      "description": "The page's own data array that drives the 60-door calendar.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c08d6e3e3d0ff89b03adcba178dc46fc53e1775929c2f7dfe49d31f4f3439227"
+    },
+    {
+      "id": "JS_MOVES",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "embed page inline <script>: var MOVES (7 objects)",
+      "description": "Move cards: how-to, works, avoid, easy, hard, dose per phase.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c08d6e3e3d0ff89b03adcba178dc46fc53e1775929c2f7dfe49d31f4f3439227"
+    },
+    {
+      "id": "JS_STRING",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "embed page inline <script>: string test RES + ratio thresholds (r<.48, r<=.5)",
+      "description": "Interactive string-test logic.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c08d6e3e3d0ff89b03adcba178dc46fc53e1775929c2f7dfe49d31f4f3439227"
+    },
+    {
+      "id": "DOM_DOORS",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_dom_render",
+      "evidence_location": "Playwright: click .door[data-d=N] then read #dd-chips/#dd-t/#dd-l/#dd-pl",
+      "description": "Rendered day panel for each of the 60 doors.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": null
+    },
+    {
+      "id": "DOM_MOVES",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_dom_render",
+      "evidence_location": "Playwright: click #holdgrid .hold then read #hd-*",
+      "description": "Rendered move card for each of the 7 moves.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": null
+    },
+    {
+      "id": "PROSE_WEEK",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_prose",
+      "evidence_location": "embed HTML: section .week (Day 1..7 labels + minutes)",
+      "description": "Static weekly pattern block on the landing page.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c08d6e3e3d0ff89b03adcba178dc46fc53e1775929c2f7dfe49d31f4f3439227"
+    },
+    {
+      "id": "PROSE_PHASES",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_prose",
+      "evidence_location": "embed HTML: ul.phases",
+      "description": "Static 4-phase list on the landing page.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c08d6e3e3d0ff89b03adcba178dc46fc53e1775929c2f7dfe49d31f4f3439227"
+    },
+    {
+      "id": "PROSE_FAQ",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_prose",
+      "evidence_location": "embed HTML: .faq + 'Who it's for' + hero text",
+      "description": "Landing-page prose and FAQ.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c08d6e3e3d0ff89b03adcba178dc46fc53e1775929c2f7dfe49d31f4f3439227"
+    },
+    {
+      "id": "PROSE_SEO",
+      "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "source_type": "public_page_prose",
+      "evidence_location": "landing shell HTML: div.seo-summary",
+      "description": "Public product summary text (also in og/meta).",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "0b2cc07afafbf840ce86af157ca39947262e06cf34196a4fbf69f9b4b76bec23"
+    },
+    {
+      "id": "META_LD",
+      "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "source_type": "product_metadata",
+      "evidence_location": "landing shell HTML: script[type=application/ld+json]",
+      "description": "schema.org Product metadata.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "0b2cc07afafbf840ce86af157ca39947262e06cf34196a4fbf69f9b4b76bec23"
+    },
+    {
+      "id": "IMG_01",
+      "source_url": "https://public-files.gumroad.com/u7c6qai6wcgt2fcup2i7yy82sv4c",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 1 (page-01.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 1.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "8ab5656e1459e06913b1e3e843db2bd5a5dd9af209ada82404b20ebfa47a2f4c"
+    },
+    {
+      "id": "IMG_02",
+      "source_url": "https://public-files.gumroad.com/mx2vpb4er024voqaglxditebx9y8",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 2 (page-02.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 2.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "53ecf2e26ee43b1cf8c2c043c9830d64a795862cbda57f9ad4bbd82173846419"
+    },
+    {
+      "id": "IMG_04",
+      "source_url": "https://public-files.gumroad.com/f8qqnf4nudyb340du9jm2bbhrpbk",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 4 (page-04.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 4.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "d75c60b7c01839dc137bb87853bbe461d68b54e8da9e1c476d2cdc702b6c4fe8"
+    },
+    {
+      "id": "IMG_05",
+      "source_url": "https://public-files.gumroad.com/xdhy79c3bzxkwojri6wb2w3owrdi",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 5 (page-05.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 5.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "9c665c7efcb7ad52c693b0a5151624b67c359ed93643dfb867846f430be683ae"
+    },
+    {
+      "id": "IMG_07",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 7 (page-07.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 7.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "5d90bbe608faa0655ea007c6e1856e3631f9674285ccb1cf3e205a659aa06845"
+    },
+    {
+      "id": "IMG_08",
+      "source_url": "https://public-files.gumroad.com/kevrgj1pw7cfzcsyah7j3hjnpws9",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 8 (page-08.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 8.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "b7eef08d1f2f13af841487b59785bdc7507bf1660b01889ccaca1de235f92a94"
+    },
+    {
+      "id": "IMG_10",
+      "source_url": "https://public-files.gumroad.com/tb6f5tc03a8egshyww2ju2pr6rmu",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 10 (page-10.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 10.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "7b7a2f9cb15128f60ed114d63cf29f8fe9834053f6466e36bce05bed674b80f8"
+    },
+    {
+      "id": "IMG_18",
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 18 (page-18.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 18.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "c6a32353fa2fdd72707741d9bc6fd05fb00a19a675d747557da52320e942136c"
+    },
+    {
+      "id": "IMG_19",
+      "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 19 (page-19.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 19.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "ed5bf9d0cc9b5056cd81a25688860d1234c91da9f55e0f675b027bbfab24cb08"
+    },
+    {
+      "id": "IMG_22",
+      "source_url": "https://public-files.gumroad.com/lsppkhn0ynlpjqkany89w96qxuxm",
+      "source_type": "public_preview_image",
+      "evidence_location": "PDF page 22 (page-22.jpg); read by eye and OCR (macOS Vision)",
+      "description": "Public preview image of PDF page 22.",
+      "retrieved_at": "2026-11-24T08:40:00+00:00",
+      "sha256": "bd134404761015241377af4e23d788cc21d116f3c27c6dc2fbf5c95a99d09f64"
+    }
+  ],
+  "conflicts": [
+    {
+      "field": "carb portion (fist vs cupped hand)",
+      "page_data": "One fist of carbs per meal, not a mountain.",
+      "pdf_page_7": "carbs = 1 cupped hand; fist = vegetables",
+      "affected_days": [
+        4,
+        7,
+        11,
+        14,
+        18,
+        21,
+        25,
+        28,
+        32,
+        35,
+        39,
+        42,
+        46,
+        49,
+        53,
+        56,
+        60
+      ]
+    },
+    {
+      "field": "rest between rounds",
+      "page_data": "40 s on days 29-60",
+      "pdf_page_18": "rest 45 seconds (no phase qualifier)",
+      "affected_days": [
+        29,
+        31,
+        33,
+        36,
+        38,
+        40,
+        43,
+        45,
+        47,
+        50,
+        52,
+        54,
+        57,
+        59
+      ]
+    }
+  ]
+}

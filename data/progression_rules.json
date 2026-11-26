@@ -1,0 +1,242 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ]
+  },
+  "rules": [
+    {
+      "field": "rounds_by_phase",
+      "value": {
+        "Foundation": "2 in week 1 (days 1-7), then 3",
+        "Build": 3,
+        "Carve": 3,
+        "Reveal": "4 on ab days (full-body days stay at 3 in the page data)"
+      },
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-18 'ROUNDS'; page-19 table; DAYS[].r",
+      "evidence_ids": [
+        "IMG_18",
+        "IMG_19",
+        "JS_DAYS"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "Full-body Reveal rounds (3) come from the page data only."
+    },
+    {
+      "field": "round_structure",
+      "value": "Do the 3 moves back to back, rest 45 seconds, repeat.",
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-18 'ROUNDS' card",
+      "evidence_ids": [
+        "IMG_18"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "effort",
+      "value": "Finish each set with 1 or 2 good reps left. Shaky is fine. Sloppy is not.",
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-18 'EFFORT' card",
+      "evidence_ids": [
+        "IMG_18"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "rest_between_rounds_seconds",
+      "value": {
+        "days_1_28": 45,
+        "days_29_60": 40
+      },
+      "source_url": "https://public-files.gumroad.com/ok5ut8qrhqjngq2px5cqx75buag1",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-18 'ROUNDS' vs DAYS[].rest",
+      "evidence_ids": [
+        "IMG_18",
+        "JS_DAYS"
+      ],
+      "confidence": "low",
+      "verification_status": "CONFLICTING",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "Page 18: 45 s, no phase qualifier. Page data: 40 s from day 29.",
+      "conflicting_values": [
+        {
+          "value": 45,
+          "source": "PDF page 18 preview image"
+        },
+        {
+          "value": 40,
+          "source": "landing page data, days 29-60"
+        }
+      ]
+    },
+    {
+      "field": "dose_progression",
+      "value": "The moves stay the same and the doses grow each phase (see exercises.json dose_by_phase).",
+      "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-19 intro",
+      "evidence_ids": [
+        "IMG_19"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "hollow_hold_progression",
+      "value": "Tuck (Foundation) -> half (Build) -> full (Carve, Reveal)",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "MOVES[5].dose; page-19 Carve text 'the full hollow'",
+      "evidence_ids": [
+        "JS_MOVES",
+        "IMG_19"
+      ],
+      "confidence": "medium",
+      "verification_status": "PARTIALLY_VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "Page 19 confirms the full hollow arrives in Carve; the Build 'half' is in the page data only."
+    },
+    {
+      "field": "squeeze_crunch_load",
+      "value": "Water jug from Carve; heavier jug or backpack with books is the harder version.",
+      "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-19 Carve text; page-18 '15 + jug'; MOVES[4]",
+      "evidence_ids": [
+        "IMG_19",
+        "IMG_18",
+        "JS_MOVES"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "leg_raise_progression",
+      "value": "Knees bent (Foundation) -> straight legs from Carve; hanging knee raises 8-12 optional with a pull-up bar in Carve and Reveal.",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "MOVES[6]; page-19 'straight-leg raises'; page-18 '12 legs straight'",
+      "evidence_ids": [
+        "JS_MOVES",
+        "IMG_19",
+        "IMG_18"
+      ],
+      "confidence": "medium",
+      "verification_status": "PARTIALLY_VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "full_body_progression",
+      "value": {
+        "Foundation": "5-12 (knees or hands up)",
+        "Build": "8-12",
+        "Carve": "8-15",
+        "Reveal": "10-15 (feet up if easy)"
+      },
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "DAYS[].b full-body days",
+      "evidence_ids": [
+        "JS_DAYS"
+      ],
+      "confidence": "medium",
+      "verification_status": "PARTIALLY_VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "note": "Push-ups doses by phase shown as a sample; see full_body_exercises.json for all four moves."
+    },
+    {
+      "field": "steps_progression",
+      "value": {
+        "Foundation": 7000,
+        "Build": 8000,
+        "Carve": 9000,
+        "Reveal": 10000
+      },
+      "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-19 'STEPS A DAY'",
+      "evidence_ids": [
+        "IMG_19"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "long_walk_day_steps",
+      "value": {
+        "Foundation": 9000,
+        "Build": 10000,
+        "Carve": 11000,
+        "Reveal": 12000
+      },
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_script_data",
+      "evidence_location": "DAYS[].s on 'Full body 2 + long walk' days",
+      "evidence_ids": [
+        "JS_DAYS"
+      ],
+      "confidence": "medium",
+      "verification_status": "PARTIALLY_VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "weekly_adjustment",
+      "value": "Nothing moved for 2 weeks in a row? Take away one cupped hand of carbs or one thumb of fat a day, and keep everything else the same. Feeling weak, dizzy or hungry all the time? Add one back.",
+      "source_url": "https://public-files.gumroad.com/15c1m5zgcjxw7yijfxalvubk6jn7",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-07 'EVERY 7 DAYS: THE WEEKLY CHECK'",
+      "evidence_ids": [
+        "IMG_07"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "load_progression_numbers",
+      "value": null,
+      "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "source_type": "none",
+      "evidence_location": "not publicly exposed",
+      "evidence_ids": [
+        "PROSE_SEO"
+      ],
+      "confidence": "none",
+      "verification_status": "UNAVAILABLE",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "unavailable_reason": "No publicly exposed rule gives weights/jug size; only 'jug' and 'bag' qualifiers."
+    }
+  ]
+}

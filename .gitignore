@@ -7,3 +7,7 @@ tracker-backup-*.json
 .DS_Store
 server/data/
 __pycache__/
+
+# AB60 extraction tooling
+tools/ab60/.venv/
+raw/

@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ],
+    "excluded": "A Telegram bot demo message about missed days exists in the landing page script. It describes the bot, not the PDF, and Telegram is out of scope, so it is not used."
+  },
+  "rules": [
+    {
+      "field": "count_from_start",
+      "value": "Days count from your start, not from the calendar. Missed days push the plan back; they don't break it (page 20).",
+      "source_url": "https://public-files.gumroad.com/cxsgaqbzfyhqqd6vb35biz538dgw",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-19 'BEHIND? NO PROBLEM' box",
+      "evidence_ids": [
+        "IMG_19"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "start_any_day",
+      "value": "Day 1 is whatever day you start. The plan works any time of year.",
+      "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+      "source_type": "public_page_prose",
+      "evidence_location": "landing FAQ; page-18 intro",
+      "evidence_ids": [
+        "PROSE_FAQ",
+        "IMG_18"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "party_rule",
+      "value": "The next meal is a normal meal, and the next day is a normal plan day. One big meal changes almost nothing. A lost week does.",
+      "source_url": "https://public-files.gumroad.com/kevrgj1pw7cfzcsyah7j3hjnpws9",
+      "source_type": "public_preview_image",
+      "evidence_location": "page-08 'NO START ON MONDAY'",
+      "evidence_ids": [
+        "IMG_08"
+      ],
+      "confidence": "high",
+      "verification_status": "VERIFIED",
+      "extracted_at": "2026-11-24T08:40:00+00:00"
+    },
+    {
+      "field": "missed_day_plan_detail",
+      "value": null,
+      "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "source_type": "none",
+      "evidence_location": "not publicly exposed",
+      "evidence_ids": [
+        "PROSE_SEO"
+      ],
+      "confidence": "none",
+      "verification_status": "UNAVAILABLE",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "unavailable_reason": "Page 20 ('Missed days') is referenced by page 19 but is not a public preview page. How many days to repeat or skip is not published."
+    },
+    {
+      "field": "three_mistakes_and_questions",
+      "value": null,
+      "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+      "source_type": "none",
+      "evidence_location": "not publicly exposed",
+      "evidence_ids": [
+        "PROSE_SEO"
+      ],
+      "confidence": "none",
+      "verification_status": "UNAVAILABLE",
+      "extracted_at": "2026-11-24T08:40:00+00:00",
+      "unavailable_reason": "PDF pages with '3 mistakes' and 'questions' are not public."
+    }
+  ]
+}

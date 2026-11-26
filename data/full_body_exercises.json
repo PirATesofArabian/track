@@ -1,0 +1,682 @@
+{
+  "_meta": {
+    "programme": "AB THEORY 60 (Rep Theory)",
+    "generated_at": "2026-11-26T01:53:55+00:00",
+    "extracted_at": "2026-11-24T08:40:00+00:00",
+    "landing_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+    "embed_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+    "status_definitions": {
+      "VERIFIED": "Shown in a public PDF preview page image, or confirmed by 2+ separately authored public landing sections.",
+      "PARTIALLY_VERIFIED": "Found in only one public place (the landing page's data), no preview page shows it.",
+      "CONFLICTING": "Two public places disagree. Both values are kept in conflicting_values/note.",
+      "UNAVAILABLE": "Not publicly exposed. value is null and unavailable_reason says why."
+    },
+    "record_fields": [
+      "field",
+      "value",
+      "source_url",
+      "source_type",
+      "evidence_location",
+      "confidence",
+      "verification_status",
+      "extracted_at"
+    ],
+    "sessions": "Full body 1 and Full body 2 use identical lists in every phase (day data). Day 6 type adds a long walk.",
+    "required_equipment": "sturdy table (rows), couch/chair (hip thrust), backpack/water jug ('+ bag' in Carve/Reveal split squats)"
+  },
+  "exercises": [
+    {
+      "id": "push-ups",
+      "order_in_session": 1,
+      "name": {
+        "field": "name",
+        "value": "Push-ups",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing: 'Push-ups, split squats, table rows and couch hip thrusts'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "PROSE_FAQ",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "5-12 (knees or hands up)",
+            "parsed": {
+              "kind": "reps",
+              "min": 5,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "(knees or hands up)"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [2, 6, 9, 13]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "8-12",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [16, 20, 23, 27]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "8-15",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [30, 34, 37, 41]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "10-15 (feet up if easy)",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "(feet up if easy)"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [44, 48, 51, 55, 58]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        }
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Full-body move instructions are not exposed on the landing page or in the 10 public preview pages."
+      },
+      "easier_harder": {
+        "field": "easier_harder",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly. Only the qualifiers inside the day doses (e.g. 'knees or hands up', 'feet up if easy') are known."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly."
+      }
+    },
+    {
+      "id": "split-squats",
+      "order_in_session": 2,
+      "name": {
+        "field": "name",
+        "value": "Split squats",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing: 'Push-ups, split squats, table rows and couch hip thrusts'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "PROSE_FAQ",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "8-10 each leg",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 10,
+              "unit": "reps",
+              "per": "leg",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [2, 6, 9, 13]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "10-12 each leg",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 12,
+              "unit": "reps",
+              "per": "leg",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [16, 20, 23, 27]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "10-12 each leg + bag",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 12,
+              "unit": "reps",
+              "per": "leg",
+              "qualifier": "+ bag"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [30, 34, 37, 41]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "12 each leg + bag",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 12,
+              "unit": "reps",
+              "per": "leg",
+              "qualifier": "+ bag"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [44, 48, 51, 55, 58]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        }
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Full-body move instructions are not exposed on the landing page or in the 10 public preview pages."
+      },
+      "easier_harder": {
+        "field": "easier_harder",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly. Only the qualifiers inside the day doses (e.g. 'knees or hands up', 'feet up if easy') are known."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly."
+      }
+    },
+    {
+      "id": "table-rows",
+      "order_in_session": 3,
+      "name": {
+        "field": "name",
+        "value": "Table rows",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing: 'Push-ups, split squats, table rows and couch hip thrusts'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "PROSE_FAQ",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00"
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "6-10 knees bent",
+            "parsed": {
+              "kind": "reps",
+              "min": 6,
+              "max": 10,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "knees bent"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [2, 6, 9, 13]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "8-12",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [16, 20, 23, 27]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "8-12 legs straighter",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "legs straighter"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [30, 34, 37, 41]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "10-12 legs straight",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "legs straight"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [44, 48, 51, 55, 58]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        }
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Full-body move instructions are not exposed on the landing page or in the 10 public preview pages."
+      },
+      "easier_harder": {
+        "field": "easier_harder",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly. Only the qualifiers inside the day doses (e.g. 'knees or hands up', 'feet up if easy') are known."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly."
+      }
+    },
+    {
+      "id": "couch-hip-thrust",
+      "order_in_session": 4,
+      "name": {
+        "field": "name",
+        "value": "Couch hip thrust",
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "public_page_prose",
+        "evidence_location": "landing: 'Push-ups, split squats, table rows and couch hip thrusts'",
+        "evidence_ids": [
+          "PROSE_SEO",
+          "PROSE_FAQ",
+          "JS_DAYS"
+        ],
+        "confidence": "high",
+        "verification_status": "VERIFIED",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "note": "Landing text says 'couch hip thrusts'; the day data says 'Couch hip thrust'."
+      },
+      "dose_by_phase": {
+        "Foundation": {
+          "field": "dose",
+          "value": {
+            "raw": "10-12",
+            "parsed": {
+              "kind": "reps",
+              "min": 10,
+              "max": 12,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [2, 6, 9, 13]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Build": {
+          "field": "dose",
+          "value": {
+            "raw": "12-15",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [16, 20, 23, 27]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Carve": {
+          "field": "dose",
+          "value": {
+            "raw": "12-15, pause at the top",
+            "parsed": {
+              "kind": "reps",
+              "min": 12,
+              "max": 15,
+              "unit": "reps",
+              "per": null,
+              "qualifier": "pause at the top"
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [30, 34, 37, 41]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        },
+        "Reveal": {
+          "field": "dose",
+          "value": {
+            "raw": "8-10 each leg",
+            "parsed": {
+              "kind": "reps",
+              "min": 8,
+              "max": 10,
+              "unit": "reps",
+              "per": "leg",
+              "qualifier": null
+            }
+          },
+          "source_url": "https://thereptheory.gumroad.com/l/ervvan/landing/embed",
+          "source_type": "public_page_script_data",
+          "evidence_location": "DAYS[].b on days [44, 48, 51, 55, 58]",
+          "evidence_ids": [
+            "JS_DAYS",
+            "DOM_DOORS"
+          ],
+          "confidence": "medium",
+          "verification_status": "PARTIALLY_VERIFIED",
+          "extracted_at": "2026-11-24T08:40:00+00:00",
+          "note": "Identical on every full-body day of the phase. Not shown on any public preview page."
+        }
+      },
+      "how_to": {
+        "field": "how_to",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Full-body move instructions are not exposed on the landing page or in the 10 public preview pages."
+      },
+      "easier_harder": {
+        "field": "easier_harder",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly. Only the qualifiers inside the day doses (e.g. 'knees or hands up', 'feet up if easy') are known."
+      },
+      "mistakes_to_avoid": {
+        "field": "mistakes_to_avoid",
+        "value": null,
+        "source_url": "https://thereptheory.gumroad.com/l/abs/CHRISTMAS25",
+        "source_type": "none",
+        "evidence_location": "not publicly exposed",
+        "evidence_ids": [
+          "PROSE_SEO"
+        ],
+        "confidence": "none",
+        "verification_status": "UNAVAILABLE",
+        "extracted_at": "2026-11-24T08:40:00+00:00",
+        "unavailable_reason": "Not exposed publicly."
+      }
+    }
+  ]
+}

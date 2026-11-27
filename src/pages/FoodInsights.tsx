@@ -4,7 +4,7 @@ import { db, DEFAULT_SETTINGS } from '../lib/db'
 import { Btn, Card, Stat } from '../lib/ui'
 import { useExerciseIndex, useProfile, useSettings } from '../lib/hooks'
 import { bodySnapshot, PROTEIN_PER_KG } from '../lib/body'
-import { analyseDay, calcTargets, critiqueTargets, macrosForKcal, proteinTrend, realMaintenance, type Verdict } from '../lib/foodinsights'
+import { analyseDay, calcTargets, critiqueTargets, macrosForKcal, proteinTrend, provisionalMaintenance, realMaintenance, type Verdict } from '../lib/foodinsights'
 import { e1rmSlope, finished, sessionsByExercise } from '../lib/perf'
 import { offerUndo } from '../lib/undo'
 import { fmtInt, round0, shiftDate, todayStr } from '../lib/util'
@@ -27,12 +27,13 @@ export function FoodInsights({ date }: { date: string }) {
     const logged = done.length ? Math.round((done.filter((w) => w.date >= from).length / 4) * 10) / 10 : null
     const snap = bodySnapshot({ profile, weights, measurements: meas, today, loggedDaysPerWeek: logged })
     const maint = realMaintenance(logs, snap.trend, today)
+    const early = maint ? null : provisionalMaintenance(logs, snap.trend, today)
     const tdee = maint?.kcal ?? snap.energy?.tdee ?? null
     const trainingDates = new Set(done.map((w) => w.date))
     const slopes = [...sessionsByExercise(workouts, idx).values()].map((l) => e1rmSlope(l, today)).filter((x): x is number => x !== null)
     const rate = snap.rate?.kgPerWeek ?? null
     return {
-      snap, maint, trainingDates,
+      snap, maint, early, trainingDates,
       day: analyseDay({ logs, date, today, weightKg: snap.kg, kcalTarget: s.kcal, maintenanceKcal: tdee, proteinRangeGPerKg: PROTEIN_PER_KG[profile.goal], trainingDay: trainingDates.has(date) }),
       trend: proteinTrend({ logs, today, days, proteinTargetG: s.p, trainingDates }),
       calc: calcTargets(snap.energy ? { targetKcal: snap.energy.targetKcal, protein: snap.energy.protein } : null, snap.kg),
@@ -115,6 +116,11 @@ export function FoodInsights({ date }: { date: string }) {
           <>
             <p className="text-3xl font-bold tabular-nums">{fmtInt(d.maint.kcal)}<span className="text-base text-zinc-500 font-normal"> kcal/day</span></p>
             <p className="text-xs text-zinc-400">You averaged {fmtInt(d.maint.meanIntake)} kcal over {d.maint.loggedDays} logged days while your trend weight moved {d.maint.changeKg > 0 ? '+' : ''}{d.maint.changeKg.toFixed(2)} kg in {d.maint.days} days{d.snap.energy ? `. The formula estimate is ${fmtInt(d.snap.energy.tdee)}.` : '.'}</p>
+          </>
+        ) : d.early ? (
+          <>
+            <p className="text-3xl font-bold tabular-nums">~{fmtInt(d.early.kcal)}<span className="text-base text-zinc-500 font-normal"> kcal/day · provisional</span></p>
+            <p className="text-xs text-zinc-400">You averaged {fmtInt(d.early.meanIntake)} kcal over {d.early.loggedDays} logged days while your trend weight moved {d.early.changeKg > 0 ? '+' : ''}{d.early.changeKg.toFixed(2)} kg in {d.early.days} days. Over this short a window, a 0.5 kg water swing moves the answer by about ±{fmtInt(d.early.wobbleKcal)} kcal. It is not used for your targets or the verdicts above; the full estimate needs 14+ logged days and weigh-ins spanning 14+ days at both ends of the last 4 weeks.</p>
           </>
         ) : <p className="text-sm text-zinc-500">Needs 14 or more days with at least 1,000 kcal logged in the last 4 weeks, and weigh-ins spanning 14+ days at both ends.</p>}
       </Card>

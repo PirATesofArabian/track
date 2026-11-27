@@ -99,6 +99,25 @@ export function realMaintenance(logs: FoodEntry[], trend: TrendPt[], today: stri
   return { kcal: Math.round((mean - (KCAL_PER_KG * change) / span) / 10) * 10, meanIntake: Math.round(mean), loggedDays: days.length, days: span, changeKg: change }
 }
 
+/** Provisional maintenance for the first weeks: the same formula over whatever window you have (>= 7 logged days and >= 7 days between trend points).
+ *  Shown on its own, never fed into targets or verdicts: a few days of weight is mostly water, so treat it as rough. */
+export function provisionalMaintenance(logs: FoodEntry[], trend: TrendPt[], today: string) {
+  if (!trend.length) return null
+  const end = shiftDate(today, -1)
+  const first = trend.reduce((m, t) => (t.date < m ? t.date : m), trend[0].date)
+  const days = [...dayTotals(logs.filter((e) => e.date >= first && e.date <= end)).values()].filter((d) => d.kcal >= MIN_LOGGED_KCAL)
+  if (days.length < 7) return null
+  const a = trend.find((t) => t.date === first)
+  let b: TrendPt | null = null
+  for (const t of trend) if (t.date <= end && (!b || t.date > b.date)) b = t
+  if (!a || !b) return null
+  const span = daysBetween(a.date, b.date)
+  if (span < 7) return null
+  const mean = days.reduce((s, d) => s + d.kcal, 0) / days.length
+  const change = b.trendKg - a.trendKg
+  return { kcal: Math.round((mean - (KCAL_PER_KG * change) / span) / 10) * 10, meanIntake: Math.round(mean), loggedDays: days.length, days: span, changeKg: change, wobbleKcal: Math.round((0.5 * KCAL_PER_KG) / span / 10) * 10 }
+}
+
 // ── Protein trend (O) ──
 export function proteinTrend(a: { logs: FoodEntry[]; today: string; days: number; proteinTargetG: number | null; trainingDates: Set<string> }) {
   const from = shiftDate(a.today, -(a.days - 1))

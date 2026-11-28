@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type ActivityLog } from '../lib/db'
-import { ACTIVITIES, cardioKcal, stepsKcal, strideM, type ActivityId, type Effort } from '../lib/burn'
+import { ACTIVITIES, cardioKcal, cardioSteps, daySteps, stepsKcal, strideM, type ActivityId, type Effort } from '../lib/burn'
 import { Bar, Btn, Card, Chart, Chips, Empty, Field, NumInput, Sheet, Stat, inputCls } from '../lib/ui'
 import { deleteWithUndo } from '../lib/undo'
 import { useProfile, useSettings } from '../lib/hooks'
@@ -22,7 +22,8 @@ export default function ActivityPage() {
 
   const steps = logs.filter((l) => l.kind === 'steps').sort((a, b) => (a.time ?? '').localeCompare(b.time ?? ''))
   const cardio = logs.filter((l) => l.kind === 'cardio')
-  const totalSteps = steps.reduce((a, l) => a + (l.steps ?? 0), 0)
+  const ds = daySteps(logs, profile.heightCm)
+  const totalSteps = ds.total
   const stepsK = steps.reduce((a, l) => a + l.kcal, 0)
   const cardioK = cardio.reduce((a, l) => a + l.kcal, 0)
   const liftK = workouts.filter((w) => w.finishedAt).reduce((a, w) => a + (workoutKcal(w, weights)?.kcal ?? 0), 0)
@@ -30,10 +31,10 @@ export default function ActivityPage() {
   const kg = weightOn(weights, date)
 
   const days30 = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const l of range) if (l.kind === 'steps') m.set(l.date, (m.get(l.date) ?? 0) + (l.steps ?? 0))
-    return [...m].sort((a, b) => a[0].localeCompare(b[0]))
-  }, [range])
+    const byDate = new Map<string, ActivityLog[]>()
+    for (const l of range) byDate.set(l.date, [...(byDate.get(l.date) ?? []), l])
+    return [...byDate].map(([d, rows]): [string, number] => [d, daySteps(rows, profile.heightCm).total]).filter(([, n]) => n > 0).sort((a, b) => a[0].localeCompare(b[0]))
+  }, [range, profile.heightCm])
   const avg7 = (() => {
     const from = shiftDate(todayStr(), -6)
     const v = days30.filter(([d]) => d >= from).map(([, s]) => s)
@@ -68,7 +69,13 @@ export default function ActivityPage() {
             <button className="text-zinc-500 h-8 w-8" onClick={() => deleteWithUndo(db.activity, l.id!, 'Steps removed')}>✕</button>
           </div>
         ))}
-        {!steps.length && <p className="text-xs text-zinc-500">Log a day total from your phone/watch, or add steps for part of the day (e.g. 6:30 morning walk, 1,800 steps).</p>}
+        {cardio.filter((l) => cardioSteps(l, profile.heightCm) > 0).map((l) => (
+          <div key={'c' + l.id} className="border-t border-zinc-800 pt-2 text-sm">
+            <p>{fmtInt(cardioSteps(l, profile.heightCm))} steps · {ACTIVITIES.find((a) => a.id === l.activity)?.label ?? 'Cardio'}</p>
+            <p className="text-xs text-zinc-500">{l.steps ? 'Steps typed by you' : `Worked out from the distance with a ${Math.round(strideM(profile.heightCm) * 100)} cm stride`}{ds.cardioIncluded ? ' · already inside your day total, not added again' : ''}</p>
+          </div>
+        ))}
+        {!steps.length && !ds.cardio && <p className="text-xs text-zinc-500">Log a day total from your phone/watch, or add steps for part of the day (e.g. 6:30 morning walk, 1,800 steps).</p>}
       </Card>
 
       <Card className="space-y-2">
@@ -115,7 +122,7 @@ export default function ActivityPage() {
       </Card>
 
       <StepsSheet open={sheet === 'steps'} onClose={() => setSheet(null)} date={date} kg={kg} heightCm={profile.heightCm} />
-      <CardioSheet open={sheet === 'cardio'} onClose={() => setSheet(null)} date={date} kg={kg} />
+      <CardioSheet open={sheet === 'cardio'} onClose={() => setSheet(null)} date={date} kg={kg} heightCm={profile.heightCm} />
     </div>
   )
 }
@@ -157,7 +164,7 @@ function StepsSheet({ open, onClose, date, kg, heightCm }: { open: boolean; onCl
   )
 }
 
-function CardioSheet({ open, onClose, date, kg }: { open: boolean; onClose: () => void; date: string; kg: number | null }) {
+function CardioSheet({ open, onClose, date, kg, heightCm }: { open: boolean; onClose: () => void; date: string; kg: number | null; heightCm?: number }) {
   const [act, setAct] = useState<ActivityId>('run_outdoor')
   const [min, setMin] = useState<number | null>(null)
   const [km, setKm] = useState<number | null>(null)
@@ -165,16 +172,20 @@ function CardioSheet({ open, onClose, date, kg }: { open: boolean; onClose: () =
   const [incline, setIncline] = useState<number | null>(null)
   const [effort, setEffort] = useState<Effort>('moderate')
   const [typed, setTyped] = useState<number | null>(null)
+  const [stepsIn, setStepsIn] = useState<number | null>(null)
   const def = ACTIVITIES.find((a) => a.id === act)!
   const est = min && kg ? cardioKcal({ activity: act, minutes: min, weightKg: kg, distanceKm: km ?? undefined, speedKmh: speed ?? undefined, inclinePct: incline ?? undefined, effort }) : null
   const pace = min && km ? min / km : null
+  const stepEst = min ? cardioSteps({ kind: 'cardio', activity: act, minutes: min, distanceKm: km ?? undefined, speedKmh: speed ?? undefined }, heightCm) : 0
+  const isStepKind = cardioSteps({ kind: 'cardio', activity: act, steps: 1 }) > 0
   async function save() {
     if (!min) return
     await db.activity.add({
       date, kind: 'cardio', activity: act, minutes: min, distanceKm: km ?? undefined, speedKmh: speed ?? undefined, inclinePct: incline ?? undefined, effort,
+      steps: isStepKind && stepsIn ? stepsIn : undefined,
       kcal: typed ?? est?.kcal ?? 0, kcalSource: typed !== null ? 'typed' : 'estimated', basis: est?.basis,
     })
-    setMin(null); setKm(null); setSpeed(null); setIncline(null); setTyped(null); onClose()
+    setMin(null); setKm(null); setSpeed(null); setIncline(null); setTyped(null); setStepsIn(null); onClose()
   }
   return (
     <Sheet open={open} onClose={onClose} title="Log cardio / run">
@@ -187,6 +198,7 @@ function CardioSheet({ open, onClose, date, kg }: { open: boolean; onClose: () =
           {'incline' in def && def.incline && <Field label="Incline (%)"><NumInput value={incline} onChange={setIncline} placeholder="0" /></Field>}
         </div>
         {'effort' in def && def.effort && <Field label="Effort"><Chips value={effort} onChange={setEffort} options={[{ v: 'light', label: 'Light' }, { v: 'moderate', label: 'Moderate' }, { v: 'hard', label: 'Hard' }]} /></Field>}
+        {isStepKind && <Field label="Steps (optional, from your watch)" hint={stepEst ? `Counted as steps. Estimate ≈ ${fmtInt(stepEst)} steps from the distance; leave empty to use it.` : 'Add the distance or speed and it counts as steps, or type the steps here.'}><NumInput value={stepsIn} onChange={setStepsIn} placeholder="leave empty to estimate" /></Field>}
         {pace && <p className="text-sm text-zinc-300">Pace {Math.floor(pace)}:{String(Math.round((pace % 1) * 60)).padStart(2, '0')} /km · {round1(km! / (min! / 60))} km/h</p>}
         <Field label="Calories (optional — type from a watch)" hint={est ? `Estimate ≈ ${est.kcal} kcal · ${est.basis}` : !kg ? 'Log your body weight (Body tab) to get an estimate' : undefined}>
           <NumInput value={typed} onChange={setTyped} placeholder="leave empty to estimate" />

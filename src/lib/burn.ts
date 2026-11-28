@@ -66,6 +66,28 @@ export function stepsKcal(steps: number, weightKg: number, heightCm?: number): E
   return { kcal: Math.round(0.5 * weightKg * km), met: 0, basis: `${steps.toLocaleString('en-GB')} steps of ${Math.round(strideM(heightCm) * 100)} cm ≈ ${km.toFixed(1)} km` }
 }
 
+/** Walks and runs are steps too: distance (or speed x time) divided by your stride. Cycling, swimming and machines are not. */
+const STEP_ACTIVITIES = new Set(['walk_outdoor', 'run_outdoor', 'treadmill_walk', 'treadmill_run'])
+type StepRow = { kind: 'steps' | 'cardio'; activity?: string; steps?: number; time?: string; minutes?: number; distanceKm?: number; speedKmh?: number }
+/** Steps in one cardio row: the number typed from a watch if there is one, else worked out from distance, else 0. */
+export function cardioSteps(a: StepRow, heightCm?: number): number {
+  if (a.kind !== 'cardio' || !a.activity || !STEP_ACTIVITIES.has(a.activity)) return 0
+  if (a.steps && a.steps > 0) return a.steps
+  const km = a.distanceKm && a.distanceKm > 0 ? a.distanceKm : a.speedKmh && a.minutes ? (a.speedKmh * a.minutes) / 60 : 0
+  return km > 0 ? Math.round((km * 1000) / strideM(heightCm)) : 0
+}
+/**
+ * One day's steps. A whole-day total from your phone or watch already includes any walk or run you did, so then the run is not added again.
+ * Without a day total, step entries and the steps from walks and runs add up. `entries` is the steps from step entries only (what the step calories are worked out from,
+ * because runs already have their own calories).
+ */
+export function daySteps(rows: StepRow[], heightCm?: number) {
+  const entries = rows.filter((r) => r.kind === 'steps').reduce((n, r) => n + (r.steps ?? 0), 0)
+  const cardio = rows.reduce((n, r) => n + cardioSteps(r, heightCm), 0)
+  const hasDayTotal = rows.some((r) => r.kind === 'steps' && !r.time && (r.steps ?? 0) > 0)
+  return { total: entries + (hasDayTotal ? 0 : cardio), entries, cardio, cardioIncluded: hasDayTotal && cardio > 0 }
+}
+
 /** Weight training: MET 3.5–6 scaled by the share of sets taken within 2 RIR. */
 export function liftingKcal(minutes: number, weightKg: number, hardShare: number | null): Estimate | null {
   if (!(minutes > 0) || !(weightKg > 0)) return null

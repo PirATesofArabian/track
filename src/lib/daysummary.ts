@@ -1,7 +1,7 @@
 // "Day" summary: one day against your other days, and what tomorrow should look like.
 // Every rule here is this app's own (Estimate). The numbers it compares against are your targets and your own logs.
 import type { ActivityLog, BodyWeight, FoodEntry, Profile, Routine, Settings, Water, Workout } from './db'
-import { stepsKcal } from './burn'
+import { daySteps, stepsKcal } from './burn'
 import { nextPlanDay, weightOn, workoutKcal, workoutMinutes } from './derived'
 import { MIN_LOGGED_KCAL } from './foodinsights'
 import { isWork, sessionPerf, setVolume, type ExIndex, type Session } from './perf'
@@ -25,9 +25,9 @@ export function dayFacts(date: string, d: Inputs, idx: ExIndex): DayFacts {
   const kcal = sum('kcal')
   const ws = d.workouts.filter((w) => w.finishedAt && w.date === date)
   const act = d.activity.filter((a) => a.date === date)
-  const steps = act.filter((a) => a.kind === 'steps').reduce((a, x) => a + (x.steps ?? 0), 0)
+  const ds = daySteps(act, d.profile.heightCm), steps = ds.total
   const kg = weightOn(d.weights, date)
-  const stepKcal = steps && kg ? stepsKcal(steps, kg, d.profile.heightCm)?.kcal ?? 0 : 0
+  const stepKcal = ds.entries && kg ? stepsKcal(ds.entries, kg, d.profile.heightCm)?.kcal ?? 0 : 0 // runs already carry their own calories
   const cardio = act.filter((a) => a.kind === 'cardio').reduce((a, x) => a + (x.kcal ?? 0), 0)
   const lift = ws.reduce((a, w) => a + (workoutKcal(w, d.weights)?.kcal ?? 0), 0)
   let sets = 0, volume = 0

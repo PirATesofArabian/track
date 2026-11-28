@@ -5,6 +5,7 @@ import { Btn, Card, Chips, inputCls } from '../lib/ui'
 import { fmtInt, round0, round1, shiftDate, todayStr } from '../lib/util'
 import { useProfile, useSettings } from '../lib/hooks'
 import { weightTrend } from '../lib/body'
+import { daySteps } from '../lib/burn'
 import raw from '../data/ab60.json'
 
 // Every value shown here comes from src/data/ab60.json, generated from data/*.json (see tools/ab60).
@@ -105,13 +106,13 @@ function TrackerCard({ d, date }: { d: Day; date: string }) {
     const startDate = first?.value as string
     const wl = waists.filter((m) => m.waistCm != null).sort((a, b) => a.date.localeCompare(b.date))
     return {
-      steps: act.filter((a) => a.kind === 'steps').reduce((n, a) => n + (a.steps ?? 0), 0),
+      steps: daySteps(act, profile.heightCm).total,
       kcal: food.reduce((n, e) => n + e.kcal, 0), protein: food.reduce((n, e) => n + e.p, 0), items: food.length,
       kg: weightTrend(weights).filter((w) => w.date <= date).pop()?.trendKg ?? null,
       waistNow: [...wl].reverse().find((m) => m.date <= date && m.date >= startDate)?.waistCm ?? null,
       waistDay1: wl.find((m) => m.date === startDate)?.waistCm ?? null,
     }
-  }, [date])
+  }, [date, profile.heightCm])
   if (!t) return null
   const stepGoal = d.steps.v
   const proteinRule = t.kg ? t.kg * 1.6 : null // programme rule: about 1.6 g per kg of body weight a day (PDF page 7)
